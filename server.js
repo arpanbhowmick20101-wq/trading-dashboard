@@ -10,6 +10,8 @@ const path = require('path');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is missing.');
 if (!process.env.SESSION_SECRET) throw new Error('SESSION_SECRET is missing.');
 
