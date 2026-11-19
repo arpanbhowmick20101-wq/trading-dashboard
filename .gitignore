@@ -1,6 +1,17 @@
 node_modules/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# SQLite database files
 trades.db
 trades.db-shm
 trades.db-wal
-.env
+trades-backup.db
+*.sqlite
+*.sqlite3
+
+# Backups
 server-backup.js
