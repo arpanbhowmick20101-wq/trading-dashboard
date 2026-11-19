@@ -1,0 +1,3635 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TradeFXBook — Trading Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050607;
+      --panel: #0d0f11;
+      --panel2: #151719;
+      --line: #202428;
+      --muted: #75808b;
+      --text: #f4f7fb;
+      --blue: #087cff;
+      --blue2: #0068e8;
+      --red: #ff4050;
+      --green: #08c88a;
+      --gold: #f4b63f
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px Inter, Arial, sans-serif
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer;
+      color: inherit
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh
+    }
+
+    .sidebar {
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      border-right: 1px solid var(--line);
+      background: #050607;
+      padding: 18px 14px;
+      overflow: auto
+    }
+
+    .brand {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -.7px;
+      margin: 2px 5px 38px
+    }
+
+    .brand i {
+      color: var(--blue);
+      font-style: normal
+    }
+
+    .beta {
+      font-size: 9px;
+      background: #ff8c32;
+      color: #111;
+      padding: 4px 6px;
+      border-radius: 4px;
+      vertical-align: top;
+      margin-left: 5px
+    }
+
+    .userbox {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px
+    }
+
+    .avatar {
+      background: #cf321e;
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      font-size: 20px
+    }
+
+    .userbox small,
+    .muted {
+      color: var(--muted)
+    }
+
+    .navlabel {
+      font-size: 10px;
+      color: #59636e;
+      letter-spacing: 1.3px;
+      margin: 22px 8px 12px
+    }
+
+    .nav button {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      width: 100%;
+      padding: 12px 11px;
+      margin: 3px 0;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #9ba5b0;
+      text-align: left
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      background: #071d34;
+      color: white
+    }
+
+    .nav button.active {
+      box-shadow: inset 3px 0 var(--blue)
+    }
+
+    .nav .ico {
+      width: 18px;
+      text-align: center;
+      color: #84909c;
+      font-size: 17px
+    }
+
+    .main {
+      min-width: 0
+    }
+
+    .topbar {
+      height: 72px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 26px;
+      position: sticky;
+      top: 0;
+      background: #060708ed;
+      backdrop-filter: blur(14px);
+      z-index: 5
+    }
+
+    .pagetitle {
+      min-width: 140px;
+      font-size: 19px;
+      font-weight: 700
+    }
+
+    .pagetitle small {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    .search {
+      flex: 1;
+      max-width: 520px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 15px;
+      color: #9ba5b0
+    }
+
+    .topright {
+      margin-left: auto;
+      display: flex;
+      gap: 9px;
+      align-items: center
+    }
+
+    .iconbtn,
+    .primary,
+    .secondary,
+    .danger {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 10px 13px
+    }
+
+    .primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      font-weight: 600
+    }
+
+    .primary:hover {
+      background: var(--blue2)
+    }
+
+    .danger {
+      color: var(--red);
+      border-color: #61212a
+    }
+
+    .content {
+      padding: 24px 28px 48px;
+      max-width: 1700px;
+      margin: auto
+    }
+
+    .grid4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      min-width: 0
+    }
+
+    .metric {
+      display: flex;
+      align-items: center;
+      gap: 13px
+    }
+
+    .metric .symbol {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: #08213a;
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-size: 20px
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: #74808d;
+      text-transform: uppercase
+    }
+
+    .value {
+      font-size: 25px;
+      font-weight: 800;
+      margin-top: 5px;
+      color: var(--blue)
+    }
+
+    .positive {
+      color: var(--blue) !important
+    }
+
+    .negative {
+      color: var(--red) !important
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .section {
+      margin-top: 22px
+    }
+
+    .sectionhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px
+    }
+
+    .sectionhead h2 {
+      font-size: 16px;
+      margin: 0
+    }
+
+    .chartbox {
+      height: 270px;
+      position: relative
+    }
+
+    .chartbox canvas {
+      width: 100%;
+      height: 100%
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px
+    }
+
+    .tablewrap {
+      overflow: auto
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap
+    }
+
+    th,
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 12px
+    }
+
+    th {
+      color: #74808d;
+      font-size: 10px;
+      letter-spacing: .8px;
+      font-weight: 500
+    }
+
+    tr:hover td {
+      background: #111518
+    }
+
+    .pill {
+      font-size: 10px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: #09223b;
+      color: #56a8ff
+    }
+
+    .pill.red {
+      background: #35191d;
+      color: #ff6974
+    }
+
+    .tabs {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap
+    }
+
+    .tabs button {
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel);
+      color: #9ba5b0
+    }
+
+    .tabs button.active {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue)
+    }
+
+    .formgrid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px
+    }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      color: #89939e;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      margin: 0 0 7px
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px;
+      background: #171a1d;
+      border: 1px solid #292e33;
+      color: white;
+      border-radius: 10px;
+      outline: none
+    }
+
+    .field textarea {
+      min-height: 95px;
+      resize: vertical
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--blue)
+    }
+
+    .full {
+      grid-column: 1/-1
+    }
+
+    .empty {
+      padding: 35px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed #293039;
+      border-radius: 12px
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .right {
+      margin-left: auto
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px
+    }
+
+    .day {
+      background: #111416;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      min-height: 65px;
+      padding: 9px;
+      font-size: 11px;
+      color: #8d98a3
+    }
+
+    .day.profit {
+      border-color: #07538c;
+      background: #0a1d2b
+    }
+
+    .day.loss {
+      border-color: #7b252d;
+      background: #261316
+    }
+
+    .bar {
+      height: 8px;
+      background: #24292e;
+      border-radius: 9px;
+      overflow: hidden
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: var(--blue)
+    }
+
+    .modalback {
+      position: fixed;
+      inset: 0;
+      background: #000b;
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px
+    }
+
+    .modal {
+      width: min(700px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: #0d0f11;
+      border: 1px solid #30363c;
+      border-radius: 18px;
+      padding: 24px
+    }
+
+    .close {
+      float: right;
+      background: none;
+      border: 0;
+      color: #aab2ba;
+      font-size: 22px
+    }
+
+    .notice {
+      padding: 12px 14px;
+      background: #0b1c2b;
+      border: 1px solid #123d61;
+      color: #80bdff;
+      border-radius: 10px;
+      font-size: 12px
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .auth {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px
+    }
+
+    .authbox {
+      width: min(430px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 30px;
+      border-radius: 20px
+    }
+
+    .authbox h1 {
+      margin-top: 0
+    }
+
+    .authbox .field {
+      margin: 14px 0
+    }
+
+    .authbox button {
+      width: 100%;
+      margin-top: 10px
+    }
+
+    .screenshot {
+      width: 100%;
+      max-width: 150px;
+      border-radius: 8px;
+      border: 1px solid var(--line)
+    }
+
+    .sessionbar {
+      display: flex;
+      height: 35px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 18px 0
+    }
+
+    .sessionbar span {
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #06111a
+    }
+
+    .sessionbar span:nth-child(1) {
+      background: #ffad42;
+      flex: 8
+    }
+
+    .sessionbar span:nth-child(2) {
+      background: #087cff;
+      flex: 5
+    }
+
+    .sessionbar span:nth-child(3) {
+      background: #10bfa8;
+      flex: 9
+    }
+
+    .check {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      background: #0b1d18;
+      border: 1px solid #126143;
+      border-radius: 8px;
+      margin: 5px 0
+    }
+
+    .check input {
+      accent-color: var(--green)
+    }
+
+    @media(max-width:1050px) {
+      .app {
+        grid-template-columns: 210px 1fr
+      }
+
+      .grid4 {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    @media(max-width:720px) {
+      .app {
+        display: block
+      }
+
+      .sidebar {
+        height: auto;
+        position: relative;
+        padding: 10px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .brand {
+        margin: 4px 8px 12px
+      }
+
+      .userbox,
+      .navlabel {
+        display: none
+      }
+
+      .nav {
+        display: flex;
+        overflow: auto;
+        gap: 5px
+      }
+
+      .nav button {
+        width: auto;
+        white-space: nowrap;
+        padding: 10px
+      }
+
+      .nav button .ico {
+        display: none
+      }
+
+      .topbar {
+        padding: 0 12px;
+        height: 62px
+      }
+
+      .search {
+        display: none
+      }
+
+      .content {
+        padding: 16px 12px
+      }
+
+      .grid4 {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .split {
+        grid-template-columns: 1fr
+      }
+
+      .value {
+        font-size: 20px
+      }
+
+      .card {
+        padding: 15px
+      }
+
+      .formgrid {
+        grid-template-columns: 1fr
+      }
+
+      .full {
+        grid-column: auto
+      }
+
+      .pagetitle {
+        font-size: 16px
+      }
+
+      .topright .iconbtn:first-child {
+        display: none
+      }
+    }
+
+    /* Screenshot-aligned TradeFXBook shell refresh */
+    :root {
+      --bg: #030405;
+      --panel: #0d0e10;
+      --panel2: #17191c;
+      --line: #202226;
+      --muted: #717b87;
+      --text: #f4f6f9;
+      --blue: #087cff;
+      --blue2: #006be8
+    }
+
+    .app {
+      grid-template-columns: 230px minmax(0, 1fr);
+      min-height: 100vh
+    }
+
+    .sidebar {
+      width: 230px;
+      padding: 18px 12px 16px;
+      background: #050607;
+      border-right: 1px solid #191c20;
+      display: flex;
+      flex-direction: column
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 17px;
+      white-space: nowrap;
+      letter-spacing: -.7px;
+      margin: 3px 5px 36px
+    }
+
+    .brandmark {
+      font-weight: 900;
+      font-style: italic;
+      color: #fff;
+      letter-spacing: -1.8px;
+      font-size: 20px;
+      text-shadow: 2px 0 var(--blue)
+    }
+
+    .brandblue {
+      color: #1687ff
+    }
+
+    .beta {
+      font-size: 8px;
+      padding: 3px 5px;
+      margin-left: 2px
+    }
+
+    .userbox {
+      min-height: 54px;
+      padding: 8px;
+      border-radius: 13px;
+      margin-bottom: 20px;
+      background: #101214;
+      border-color: #202328
+    }
+
+    .avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 10px;
+      background: #d83420;
+      box-shadow: 0 0 0 2px #24282d
+    }
+
+    .useridentity {
+      min-width: 0;
+      flex: 1
+    }
+
+    .useridentity b {
+      font-size: 12px;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .useridentity small {
+      font-size: 10px
+    }
+
+    .userchev {
+      color: #6f7a86
+    }
+
+    .navlabel {
+      margin: 2px 8px 10px;
+      font-size: 9px;
+      letter-spacing: 1.4px;
+      color: #59616b
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow-y: auto;
+      min-height: 0
+    }
+
+    .nav button {
+      font-size: 12px;
+      padding: 11px 10px;
+      min-height: 39px;
+      gap: 12px;
+      color: #929ba6;
+      border-radius: 9px;
+      margin: 0
+    }
+
+    .nav button .ico {
+      font-size: 16px;
+      width: 17px
+    }
+
+    .nav button.active {
+      background: #071d33;
+      color: #f4f8ff;
+      box-shadow: inset 2px 0 #0785ff
+    }
+
+    .nav button.active .ico {
+      color: #1694ff
+    }
+
+    .nav button:hover {
+      background: #111a24;
+      color: #fff
+    }
+
+    .navgroup {
+      margin: 0
+    }
+
+    .navgrouphead {
+      width: 100%
+    }
+
+    .navchev {
+      margin-left: auto;
+      color: #1687ff
+    }
+
+    .navchildren {
+      display: none;
+      padding: 2px 0 4px 7px
+    }
+
+    .navgroup.expanded .navchildren {
+      display: block
+    }
+
+    .navchildren button {
+      font-size: 11px;
+      padding: 9px 9px 9px 14px;
+      min-height: 34px
+    }
+
+    .sidebarbottom {
+      margin-top: auto;
+      padding: 15px 6px 0;
+      display: grid;
+      gap: 8px
+    }
+
+    .freepill {
+      border: 1px solid #123a5d;
+      background: #081a2b;
+      color: #8fcaff;
+      border-radius: 9px;
+      padding: 9px;
+      font-size: 10px
+    }
+
+    .freepill span {
+      color: #0b91ff;
+      margin-right: 5px
+    }
+
+    .sidebarbottom small {
+      font-size: 9px;
+      color: #535e69;
+      padding-left: 3px
+    }
+
+    .main {
+      min-width: 0;
+      background: #030405
+    }
+
+    .topbar {
+      height: 72px;
+      padding: 0 22px;
+      gap: 18px;
+      background: #050607f2;
+      border-bottom: 1px solid #1b1e22
+    }
+
+    .pagetitle {
+      font-size: 18px;
+      min-width: 112px
+    }
+
+    .pagetitle small {
+      font-size: 10px;
+      color: #68727d
+    }
+
+    .searchwrap {
+      height: 42px;
+      max-width: 490px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 13px;
+      background: #101214;
+      border: 1px solid #202429;
+      border-radius: 12px;
+      color: #707b87
+    }
+
+    .searchwrap .search {
+      height: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      outline: 0;
+      min-width: 0;
+      font-size: 12px
+    }
+
+    .searchwrap kbd {
+      font-size: 9px;
+      color: #69737d;
+      background: #1a1d21;
+      border: 1px solid #252a30;
+      border-radius: 5px;
+      padding: 4px 6px
+    }
+
+    .topright {
+      gap: 8px
+    }
+
+    .iconbtn,
+    .profiletop {
+      height: 40px;
+      min-width: 40px;
+      border-radius: 10px;
+      background: #101214;
+      border: 1px solid #24282d;
+      color: #b4bec9
+    }
+
+    .themebtn {
+      color: #a58aff;
+      font-size: 18px
+    }
+
+    .addtop {
+      height: 40px;
+      width: 40px;
+      padding: 0;
+      font-size: 22px;
+      box-shadow: 0 5px 18px #087cff35
+    }
+
+    .clockbtn {
+      font-size: 11px;
+      white-space: nowrap
+    }
+
+    .profiletop {
+      padding: 4px 9px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .profiletop span {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #d93420;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700
+    }
+
+    .content {
+      padding: 22px 26px 68px;
+      max-width: none
+    }
+
+    .card {
+      background: #0d0f11;
+      border-color: #202327;
+      border-radius: 17px;
+      box-shadow: 0 5px 18px #0002
+    }
+
+    .grid4 {
+      gap: 12px
+    }
+
+    .metric {
+      min-height: 100px;
+      padding: 16px
+    }
+
+    .metric .symbol {
+      width: 38px;
+      height: 38px;
+      background: #071f35;
+      border: 1px solid #0b3152
+    }
+
+    .value {
+      font-size: 23px;
+      letter-spacing: -.5px
+    }
+
+    .sectionhead h2 {
+      font-size: 15px
+    }
+
+    .chartbox {
+      height: 270px
+    }
+
+    .tablewrap th {
+      font-size: 9px
+    }
+
+    .newsticker {
+      position: fixed;
+      z-index: 4;
+      bottom: 0;
+      left: 230px;
+      right: 0;
+      height: 32px;
+      background: #080a0c;
+      border-top: 1px solid #1e2227;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      padding: 0 18px;
+      overflow: hidden;
+      white-space: nowrap;
+      color: #a6b0ba;
+      font-size: 10px
+    }
+
+    .newsticker b {
+      color: #e5eaf0;
+      letter-spacing: .6px
+    }
+
+    .newsticker i {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #078bff;
+      border-radius: 50%;
+      margin-right: 5px
+    }
+
+    .newsticker span {
+      color: #78838e
+    }
+
+    .newsticker span:nth-child(2) {
+      color: #168cff;
+      font-weight: 700
+    }
+
+    @media(max-width:1000px) {
+      .app {
+        grid-template-columns: 205px minmax(0, 1fr)
+      }
+
+      .sidebar {
+        width: 205px
+      }
+
+      .newsticker {
+        left: 205px
+      }
+
+      .content {
+        padding: 18px 16px 60px
+      }
+
+      .topbar {
+        padding: 0 14px;
+        gap: 10px
+      }
+
+      .pagetitle {
+        min-width: 95px
+      }
+
+      .searchwrap {
+        max-width: none
+      }
+    }
+
+    @media(max-width:720px) {
+      .app {
+        display: block
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 10px
+      }
+
+      .brand {
+        margin: 3px 8px 10px
+      }
+
+      .userbox,
+      .navlabel,
+      .sidebarbottom {
+        display: none
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: row;
+        overflow: auto
+      }
+
+      .nav button {
+        white-space: nowrap;
+        width: auto
+      }
+
+      .navgroup {
+        display: flex;
+        align-items: center
+      }
+
+      .navchildren {
+        display: none !important
+      }
+
+      .topbar {
+        height: 60px
+      }
+
+      .searchwrap {
+        display: none
+      }
+
+      .content {
+        padding: 14px 11px 55px
+      }
+
+      .newsticker {
+        left: 0
+      }
+
+      .profiletop {
+        display: none
+      }
+    }
+
+
+    /* Dedicated TradingView workspace */
+    #tradingview-fullscreen:fullscreen {
+      width: 100vw !important;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      border-radius: 0 !important;
+      background: #0b0e11
+    }
+
+    #tradingview-fullscreen:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      border-radius: 0 !important
+    }
+
+    @media(max-width:720px) {
+      #tradingview-fullscreen {
+        height: calc(100vh - 220px) !important;
+        min-height: 440px !important
+      }
+    }
+
+    /* Premium Market Watchlist */
+    .market-watch-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .market-watch-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .market-watch-toolbar input {
+      min-width: 220px;
+      max-width: 100%;
+    }
+
+    .market-symbol-row {
+      transition: background 0.2s ease;
+    }
+
+    .market-symbol-row:hover {
+      background: var(--panel2);
+    }
+
+    .market-symbol-row td {
+      padding-top: 16px;
+      padding-bottom: 16px;
+    }
+
+    .market-symbol-row strong {
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .market-watch-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .market-watch-filters button {
+      min-width: 90px;
+      transition: all 0.2s ease;
+    }
+
+    .market-watch-filters button:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold);
+    }
+
+    .market-watch-filters .active-filter {
+      background: var(--gold);
+      color: #111;
+      border-color: var(--gold);
+    }
+
+    /* Premium Watchlist Search */
+    #market-search:focus {
+      outline: none;
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+      transition: all 0.2s ease;
+    }
+
+    #market-search::placeholder {
+      color: var(--muted);
+      opacity: 0.8;
+    }
+
+    .market-empty-state {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      margin-top: 14px;
+    }
+
+    .market-empty-state strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .market-note-preview {
+      margin-top: 7px;
+      max-width: 180px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    /* Premium Watchlist Table */
+    #market-symbol-list {
+      background: transparent;
+    }
+
+    .tablewrap table thead th {
+      position: sticky;
+      top: 0;
+      background: #101317;
+      color: #8995a2;
+      padding: 16px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #252b32;
+    }
+
+    #market-symbol-list td {
+      padding: 17px 14px;
+      border-bottom: 1px solid #1c2229;
+      vertical-align: middle;
+    }
+
+    #market-symbol-list tr:hover td {
+      background: #111a24;
+    }
+
+    #market-symbol-list tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <div class="modalback" id="modalback">
+    <div class="modal" id="modal"></div>
+  </div>
+  <script>
+    const $ = s => document.querySelector(s); let trades = [], rules = {}, page = 'Dashboard', selected = null, range = '30 Days', filter = 'All Trades'; const money = n => (n < 0 ? '-$' : '+$') + Math.abs(+n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); async function api(url, opt = {}) { let r; try { r = await fetch('/api' + url, { credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, ...opt }) } catch (e) { throw Error('Cannot reach the local server. Check that npm.cmd start is still running, then refresh.') } let d = {}; try { d = await r.json() } catch { throw Error('Server returned an unreadable response (HTTP ' + r.status + '). Check the VS Code Terminal for an error.') } if (!r.ok) throw Error(d.error || ('Request failed (HTTP ' + r.status + ')')); return d } function showError(e) { const el = document.querySelector('#autherror'); if (el) { el.textContent = e.message || String(e); el.style.display = 'block' } else alert(e.message || e) }
+    async function boot() {
+      try {
+        let me = await api('/me'); const savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
+        document.body.classList.toggle('light-theme', savedTheme === 'light'); if (!me.signedIn) return authScreen(); try { await load(); render() } catch (e) { document.body.innerHTML = '<div class="auth"><div class="authbox"><h1>Dashboard could not load</h1><p class="muted">Your sign-in may be active, but the dashboard data request failed.</p><p style="color:#ff8585">' + esc(e.message) + '</p><button class="primary" onclick="location.reload()">Retry</button><p class="muted">Keep the VS Code Terminal running while using the app.</p></div></div>' }
+      } catch (e) { authScreen(); showError(e) }
+    } async function load() { trades = await api('/trades'); rules = await api('/rules') }
+    function authScreen() { document.body.innerHTML = `<div class="auth"><div class="authbox"><div class="brand"><i>TFB</i> TradeFXBook <span class="beta">BETA</span></div><h1 id="authtitle">Welcome back</h1><p class="muted">Your private paper-trading journal and analytics workspace.</p><div class="field" id="namefield"><label>Name</label><input id="authname" placeholder="Your name"></div><div class="field"><label>Email</label><input id="authemail" type="email" placeholder="you@example.com"></div><div class="field"><label>Password</label><input id="authpass" type="password" placeholder="At least 8 characters"></div><button class="primary" id="authsubmit" onclick="submitAuth()">Create account</button><p id="autherror" style="display:none;color:#ff8585;margin-top:12px"></p><p class="muted" style="text-align:center;margin-top:18px"><span id="authswitch">Already have an account?</span> <a href="#" onclick="toggleAuth(event)" style="color:#1687ff">Sign in</a></p><div class="notice">Demo workspace: record and review simulated trades. No broker connection.</div></div></div>`; window.authMode = 'register' } function toggleAuth(e) { e.preventDefault(); window.authMode = window.authMode === 'register' ? 'login' : 'register'; $('#authtitle').textContent = window.authMode === 'register' ? 'Create your account' : 'Welcome back'; $('#namefield').classList.toggle('hidden', window.authMode === 'login'); $('#authsubmit').textContent = window.authMode === 'register' ? 'Create account' : 'Sign in'; $('#authswitch').textContent = window.authMode === 'register' ? 'Already have an account?' : 'New here?' } async function submitAuth() { const b = $('#authsubmit'); const original = b.textContent; b.disabled = true; b.textContent = 'Please wait…'; const err = $('#autherror'); if (err) { err.style.display = 'none'; err.textContent = '' } try { await api('/' + window.authMode, { method: 'POST', body: JSON.stringify({ name: $('#authname')?.value, email: $('#authemail').value.trim(), password: $('#authpass').value }) }); b.textContent = 'Signed in — opening dashboard…'; location.href = '/' } catch (e) { showError(e); b.disabled = false; b.textContent = original } }
+    const nav = [['Dashboard', '▦'], ['Trades', '▱'], ['Journal', '▤'], ['Trading', '⌁'], ['Market', '↗'], ['AI Report', '✧'], ['Backtesting', '⌘'], ['Traders Lounge', '♧'], ['Tools', '⚒'], ['Sanctuary', '◷'], ['Settings', '⚙']];
+    function shell() { return `<div class="app"><aside class="sidebar"><div class="brand"><span class="brandmark">TFB</span><span>Trade<span class="brandblue">FX</span>Book</span><span class="beta">BETA</span></div><div class="userbox"><div class="avatar">A</div><div class="useridentity"><b>My Trading Desk</b><br><small>Profile · All features free</small></div><span class="userchev">›</span></div><div class="navlabel">MENU</div><nav class="nav">${nav.slice(0, 3).map(([n, i]) => `<button class="${page === n ? 'active' : ''}" onclick="go('${n}')"><span class="ico">${i}</span>${n}</button>`).join('')}<div class="navgroup ${['Performance', 'Trade Analysis'].includes(page) ? 'expanded' : ''}"><button class="navgrouphead ${['Performance', 'Trade Analysis'].includes(page) ? 'active' : ''}" onclick="this.parentElement.classList.toggle('expanded')"><span class="ico">▥</span>Analysis <span class="navchev">⌄</span></button><div class="navchildren"><button class="${page === 'Performance' ? 'active' : ''}" onclick="go('Performance')"><span class="ico">⌁</span>Performance</button><button class="${page === 'Trade Analysis' ? 'active' : ''}" onclick="go('Trade Analysis')"><span class="ico">▤</span>Trade Analysis</button></div></div>${nav.slice(3).map(([n, i]) => `<button class="${page === n ? 'active' : ''}" onclick="go('${n}')"><span class="ico">${i}</span>${n}</button>`).join('')}<button onclick="alert('Help & Support: use the in-app journal and settings for this local demo.')"><span class="ico">ⓘ</span>Help & Support</button></nav><div class="sidebarbottom"><div class="freepill"><span>●</span> All features unlocked</div><small>TradeFXBook · Local workspace</small></div></aside><main class="main"><header class="topbar"><div class="pagetitle">${page}<small>${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</small></div><div class="searchwrap"><span>⌕</span><input class="search" placeholder="Search..." oninput="searchAll(this.value)"><kbd>Ctrl K</kbd></div><div class="topright"><button class="iconbtn themebtn" title="Toggle theme" onclick="document.body.classList.toggle('dim')">☾</button><button class="primary addtop" title="Add paper-trade journal entry" onclick="openTrade()">＋</button><button class="iconbtn clockbtn" id="clock">◷ --:--</button><button class="iconbtn" title="Notifications" onclick="alert('You are all caught up.')">♧</button><button class="profiletop" onclick="logout()"><span>A</span>⌄</button></div></header><div class="content" id="view">${pageContent()}</div><div class="newsticker"><b><i></i> NEWS</b><span>DEMO WORKSPACE</span><span>Market information is illustrative in this local build</span><span>Paper-trading journal · No broker connection</span></div></main></div>` }
+    function render() {
+      const root = document.querySelector('#root');
+
+      if (!root) {
+        console.error('Dashboard root element not found.');
+        return;
+      }
+
+      root.innerHTML = shell();
+
+      drawChart();
+
+      if (page === 'Market') {
+        marketClock();
+        updateTradingSession();
+
+        if (window.tradingSessionInterval) {
+          clearInterval(window.tradingSessionInterval);
+        }
+
+        window.tradingSessionInterval = setInterval(() => {
+          if (page === 'Market') {
+            updateTradingSession();
+          }
+        }, 60000);
+      }
+
+      if (page === 'Trading') loadTradingViewChart();
+      if (page === 'Sanctuary') timerDisplay();
+      if (page === 'Backtesting') renderBTNotes();
+    }
+    if (window.marketClockInterval) {
+      clearInterval(window.marketClockInterval);
+    }
+
+    window.marketClockInterval = setInterval(() => {
+      if (page === 'Market') marketClock();
+    }, 1000);
+    function go(p) { page = p; selected = null; render() } function logout() { api('/logout', { method: 'POST' }).then(() => location.reload()) } function stats() { let total = trades.reduce((a, t) => a + (+t.pnl || 0), 0), wins = trades.filter(t => t.pnl > 0).length, loss = trades.filter(t => t.pnl < 0).length, gp = trades.filter(t => t.pnl > 0).reduce((a, t) => a + t.pnl, 0), gl = Math.abs(trades.filter(t => t.pnl < 0).reduce((a, t) => a + t.pnl, 0)); return { total, wins, loss, rate: trades.length ? wins / trades.length * 100 : 0, gp, gl, pf: gl ? gp / gl : 0, avg: trades.length ? total / trades.length : 0 } }
+    function pageContent() { switch (page) { case 'Dashboard': return dashboard(); case 'Trades': return tradesPage(); case 'Journal': return journalPage(); case 'Trading': return tradingPage(); case 'Performance': return performancePage(); case 'Trade Analysis': return tradeAnalysis(); case 'Market': return marketPage(); case 'AI Report': return aiPage(); case 'Backtesting': return backtestPage(); case 'Traders Lounge': return loungePage(); case 'Tools': return toolsPage(); case 'Sanctuary': return sanctuaryPage(); case 'Settings': return settingsPage(); default: return dashboard() } }
+    function calendarHTML() {
+      const now = new Date(), year = now.getFullYear(), month = now.getMonth();
+      const first = new Date(year, month, 1), days = new Date(year, month + 1, 0).getDate(), offset = first.getDay();
+      const daily = {};
+      trades.forEach(t => {
+        const raw = t.closed || t.opened || '';
+        if (!raw) return;
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime()) || d.getFullYear() !== year || d.getMonth() !== month) return;
+        const day = d.getDate(); daily[day] = (daily[day] || 0) + (Number(t.pnl) || 0);
+      });
+      const cells = [];
+      for (let i = 0; i < offset; i++)cells.push('<div class="muted" style="min-height:68px;padding:8px"></div>');
+      for (let day = 1; day <= days; day++) {
+        const pnl = daily[day], has = Object.prototype.hasOwnProperty.call(daily, day);
+        cells.push(`<div style="min-height:68px;padding:8px;border:1px solid var(--line);border-radius:8px;background:${has ? (pnl >= 0 ? 'rgba(22,163,74,.09)' : 'rgba(220,38,38,.09)') : 'transparent'}"><div style="font-size:12px;color:var(--muted)">${day}</div>${has ? `<b class="${pnl >= 0 ? 'positive' : 'negative'}" style="font-size:12px">${money(pnl)}</b>` : '<span class="muted">—</span>'}</div>`);
+      }
+      return `<div class="sectionhead"><h3>${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><small class="muted">Recorded trade P&amp;L by day</small></div><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="eyebrow" style="text-align:center">${d}</div>`).join('')}${cells.join('')}</div>`;
+    }
+
+
+    function dashboard() {
+      let s = stats();
+
+      const validTrades = trades.map(t => ({
+        ...t,
+        pnl: Number(t.pnl) || 0,
+        date: new Date(t.closed || t.opened)
+      })).filter(t => !isNaN(t.date.getTime()));
+
+      const now = new Date();
+
+      const sameDay = (d) => {
+        return d.getFullYear() === now.getFullYear() &&
+          d.getMonth() === now.getMonth() &&
+          d.getDate() === now.getDate();
+      };
+
+      const startWeek = new Date(now);
+      startWeek.setHours(0, 0, 0, 0);
+      startWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+
+      const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const sum = (items) => items.reduce((a, t) => a + t.pnl, 0);
+
+      const today = validTrades.filter(t => sameDay(t.date));
+      const weekly = validTrades.filter(t => t.date >= startWeek);
+      const monthly = validTrades.filter(t => t.date >= startMonth);
+
+      const todayPnl = sum(today);
+      const weekPnl = sum(weekly);
+      const monthPnl = sum(monthly);
+
+      const bySymbol = Object.values(trades.reduce((a, t) => {
+        let k = (t.symbol || 'Other').toUpperCase();
+
+        (a[k] ??= { symbol: k, pnl: 0, count: 0, wins: 0 }).pnl += Number(t.pnl) || 0;
+        a[k].count++;
+
+        if ((Number(t.pnl) || 0) > 0) a[k].wins++;
+
+        return a;
+      }, {})).sort((a, b) => b.pnl - a.pnl).slice(0, 5);
+
+      let best = trades.length
+        ? trades.reduce((a, b) => (Number(a.pnl) || 0) > (Number(b.pnl) || 0) ? a : b)
+        : null;
+
+      let worst = trades.length
+        ? trades.reduce((a, b) => (Number(a.pnl) || 0) < (Number(b.pnl) || 0) ? a : b)
+        : null;
+
+      const metricCard = (label, value, sub) => {
+        return `
+      <div class="card">
+        <div class="eyebrow">${label}</div>
+        <div class="value ${value >= 0 ? 'positive' : 'negative'}">${money(value)}</div>
+        <small class="muted">${sub}</small>
+      </div>
+    `;
+      };
+
+      return `
+    <div class="sectionhead">
+      <div>
+        <h2>Trading Overview</h2>
+        <small class="muted">Your personal trading journal dashboard</small>
+      </div>
+      <button class="primary" onclick="openTrade()">＋ Add Trade</button>
+    </div>
+
+    <div class="grid4">
+      <div class="card metric">
+        <div class="eyebrow">TOTAL P&L</div>
+        <div class="value ${s.total >= 0 ? 'positive' : 'negative'}">${money(s.total)}</div>
+        <small class="muted">${trades.length} recorded trades</small>
+      </div>
+
+      <div class="card metric">
+        <div class="eyebrow">WIN RATE</div>
+        <div class="value">${s.rate.toFixed(1)}%</div>
+        <div class="bar"><span style="width:${s.rate}%"></span></div>
+        <small class="muted">${s.wins} wins · ${s.loss} losses</small>
+      </div>
+
+      <div class="card metric">
+        <div class="eyebrow">PROFIT FACTOR</div>
+        <div class="value">${s.pf.toFixed(2)}</div>
+        <small class="muted">Gross profit / gross loss</small>
+      </div>
+
+      <div class="card metric">
+        <div class="eyebrow">EXPECTANCY</div>
+        <div class="value ${s.avg >= 0 ? 'positive' : 'negative'}">${money(s.avg)}</div>
+        <small class="muted">Average per trade</small>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sectionhead">
+        <h2>Performance Overview</h2>
+        <small class="muted">Based on recorded trade dates</small>
+      </div>
+
+      <div class="grid4">
+        ${metricCard("TODAY'S P&L", todayPnl, `${today.length} trades today`)}
+        ${metricCard("THIS WEEK", weekPnl, `${weekly.length} trades this week`)}
+        ${metricCard("THIS MONTH", monthPnl, `${monthly.length} trades this month`)}
+        ${metricCard("REALIZED P&L", s.total, "All saved journal trades")}
+      </div>
+    </div>
+
+    <div class="card section">
+      <div class="sectionhead">
+        <div>
+          <div class="eyebrow">EQUITY PERFORMANCE</div>
+          <h2 class="${s.total >= 0 ? 'positive' : 'negative'}">${money(s.total)}</h2>
+        </div>
+        <span class="pill">Recorded P&L</span>
+      </div>
+      <div class="chartbox">
+        <canvas id="equity"></canvas>
+      </div>
+    </div>
+
+    <div class="split section">
+      <div class="card">
+        <div class="sectionhead">
+          <h2>Recent Activity</h2>
+          <button class="secondary" onclick="go('Trades')">View all →</button>
+        </div>
+
+        ${trades.slice(0, 5).map(t => `
+          <div class="row" style="padding:13px 0;border-bottom:1px solid var(--line)">
+            <b>${esc(t.symbol)}</b>
+            <span class="pill ${t.side === 'Short' ? 'red' : ''}">${esc(t.side)}</span>
+            <b class="right ${t.pnl >= 0 ? 'positive' : 'negative'}">${money(t.pnl)}</b>
+          </div>
+        `).join('') || '<div class="empty">No trades recorded yet.</div>'}
+      </div>
+
+      <div class="card">
+        <div class="sectionhead">
+          <h2>Top Performing Symbols</h2>
+          <small class="muted">By net P&L</small>
+        </div>
+
+        ${bySymbol.map(x => `
+          <div style="padding:12px 0;border-bottom:1px solid var(--line)">
+            <div class="row">
+              <b>${esc(x.symbol)}</b>
+              <b class="right ${x.pnl >= 0 ? 'positive' : 'negative'}">${money(x.pnl)}</b>
+            </div>
+            <small class="muted">${x.count} trades · ${x.wins} wins</small>
+            <div class="bar" style="margin-top:9px">
+              <span style="width:${x.count ? x.wins / x.count * 100 : 0}%"></span>
+            </div>
+          </div>
+        `).join('') || '<div class="empty">No symbol data yet.</div>'}
+      </div>
+    </div>
+
+    <div class="split section">
+      <div class="card">
+        <h2>Trade Highlights</h2>
+
+        <div style="padding:15px 0;border-bottom:1px solid var(--line)">
+          <small class="eyebrow">BEST TRADE</small>
+          <h2 class="positive">${best ? money(best.pnl) : '—'}</h2>
+          <small class="muted">${best ? esc(best.symbol) : 'No trades yet'}</small>
+        </div>
+
+        <div style="padding:15px 0">
+          <small class="eyebrow">WORST TRADE</small>
+          <h2 class="negative">${worst ? money(worst.pnl) : '—'}</h2>
+          <small class="muted">${worst ? esc(worst.symbol) : 'No trades yet'}</small>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Quick Stats</h2>
+        <div class="grid4" style="grid-template-columns:1fr 1fr">
+          ${[
+          ['Average Win', money(s.wins ? s.gp / s.wins : 0)],
+          ['Average Loss', money(s.loss ? -s.gl / s.loss : 0)],
+          ['Total Winners', s.wins],
+          ['Total Losers', s.loss]
+        ].map(x => `
+            <div style="padding:13px 0;border-bottom:1px solid var(--line)">
+              <small class="eyebrow">${x[0]}</small>
+              <b>${x[1]}</b>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card section">
+      <div class="sectionhead">
+        <h2>Monthly Trading Calendar</h2>
+        <b class="${s.total >= 0 ? 'positive' : 'negative'}">${money(s.total)}</b>
+      </div>
+      ${calendarHTML()}
+    </div>
+
+    <div class="card section">
+      <div class="sectionhead">
+        <h2>Trading Workspace</h2>
+        <span class="pill">Paper Journal</span>
+      </div>
+      <p class="muted">
+        This dashboard tracks completed journal entries.
+        It is not connected to a broker and does not execute trades.
+      </p>
+    </div>
+  `;
+    }
+    function tradesPage() { return `<div class="sectionhead"><div><h2>Trades</h2><small class="muted">${trades.length} recorded trades · Private workspace</small></div><div class="row"><button class="danger" onclick="clearTrades()">♧ Clear All</button><button class="primary" onclick="openTrade()">＋ Add Trade</button></div></div><div class="card"><div class="sectionhead"><h2>Trade History</h2><div class="row"><button class="secondary" onclick="exportCSV()">⇩ Export CSV</button><button class="secondary" onclick="$('#csvfile').click()">Import CSV</button><input id="csvfile" type="file" accept=".csv" hidden onchange="importCSV(this)"></div></div><div class="tablewrap"><table><thead><tr><th>OPEN / CLOSE</th><th>SYMBOL</th><th>TYPE</th><th>ENTRY</th><th>EXIT</th><th>SIZE</th><th>P&L</th><th>SESSION</th><th>ACTIONS</th></tr></thead><tbody>${trades.map(t => `<tr><td>${esc(t.opened || '—')}<br><span class="muted">${esc(t.closed || '')}</span></td><td><b>${esc(t.symbol)}</b></td><td><span class="pill ${t.side === 'Short' ? 'red' : ''}">${esc(t.side)}</span></td><td>${t.entry}</td><td>${t.exit}</td><td>${t.quantity}</td><td class="${t.pnl >= 0 ? 'positive' : 'negative'}"><b>${money(t.pnl)}</b></td><td>${esc(t.session)}</td><td><button class="secondary" onclick="openTrade(${t.id})">Edit</button> <button class="danger" onclick="deleteTrade(${t.id})">×</button></td></tr>`).join('') || `<tr><td colspan="9"><div class="empty">No trades yet. Click Add Trade to get started.</div></td></tr>`}</tbody></table></div></div>` }
+
+    function journalInsights() {
+      const groups = (field) => {
+        const result = {};
+
+        trades.forEach(t => {
+          const name = String(t[field] || 'Not specified').trim();
+          if (!result[name]) result[name] = { count: 0, wins: 0, losses: 0, pnl: 0 };
+
+          result[name].count++;
+          result[name].pnl += Number(t.pnl) || 0;
+
+          if ((Number(t.pnl) || 0) > 0) result[name].wins++;
+          if ((Number(t.pnl) || 0) < 0) result[name].losses++;
+        });
+
+        return Object.entries(result)
+          .sort((a, b) => b[1].pnl - a[1].pnl);
+      };
+
+      const renderGroups = (items) => {
+        if (!items.length) return '<p class="muted">No journal data yet.</p>';
+
+        return items.slice(0, 6).map(([name, v]) => {
+          const rate = v.count ? v.wins / v.count * 100 : 0;
+
+          return `
+        <div style="padding:13px 0;border-bottom:1px solid var(--line)">
+          <div class="row">
+            <b>${esc(name)}</b>
+            <b class="right ${v.pnl >= 0 ? 'positive' : 'negative'}">${money(v.pnl)}</b>
+          </div>
+          <div class="row" style="margin-top:7px">
+            <small class="muted">${v.count} trades · ${v.wins} wins · ${v.losses} losses</small>
+            <small class="muted right">${rate.toFixed(1)}% win rate</small>
+          </div>
+          <div class="bar" style="margin-top:9px">
+            <span style="width:${rate}%"></span>
+          </div>
+        </div>
+      `;
+        }).join('');
+      };
+
+      const days = {};
+      trades.forEach(t => {
+        const date = new Date(t.closed || t.opened);
+        if (isNaN(date.getTime())) return;
+
+        const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+        if (!days[day]) days[day] = { count: 0, pnl: 0 };
+
+        days[day].count++;
+        days[day].pnl += Number(t.pnl) || 0;
+      });
+
+      const dayHTML = Object.entries(days)
+        .sort((a, b) => b[1].pnl - a[1].pnl)
+        .map(([day, v]) => `
+      <div class="row" style="padding:12px 0;border-bottom:1px solid var(--line)">
+        <span>${esc(day)} <small class="muted">(${v.count})</small></span>
+        <b class="right ${v.pnl >= 0 ? 'positive' : 'negative'}">${money(v.pnl)}</b>
+      </div>
+    `).join('');
+
+      const setup = groups('setup');
+      const sessions = groups('session');
+      const emotions = groups('emotions');
+
+      return `
+    <div class="card section">
+      <div class="sectionhead">
+        <div>
+          <h2>Journal Insights</h2>
+          <small class="muted">Patterns from your recorded trades</small>
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <h3>Setup Performance</h3>
+          ${renderGroups(setup)}
+        </div>
+        <div>
+          <h3>Session Performance</h3>
+          ${renderGroups(sessions)}
+        </div>
+      </div>
+
+      <div class="split" style="margin-top:25px">
+        <div>
+          <h3>Emotion Analysis</h3>
+          ${renderGroups(emotions)}
+        </div>
+        <div>
+          <h3>Day-wise Performance</h3>
+          ${dayHTML || '<p class="muted">No dated trades yet.</p>'}
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    function journalPage() {
+      let t = selected ? trades.find(x => x.id === selected) : trades[0];
+
+      return `
+    <div class="split">
+      <div class="card">
+        <div class="sectionhead">
+          <div>
+            <h2>Trade Journal</h2>
+            <small class="muted">${trades.length} journal entries</small>
+          </div>
+          <button class="primary" onclick="openTrade()">＋</button>
+        </div>
+
+        <input class="field" style="width:100%;padding:12px;background:#171a1d;border:1px solid var(--line);border-radius:9px;color:white"
+          placeholder="⌕ Search symbol..." oninput="journalSearch(this.value)">
+
+        <div id="journalList">${journalList()}</div>
+      </div>
+
+      <div class="card">
+        ${t ? `
+          <div class="sectionhead">
+            <div>
+              <h2>${esc(t.symbol)} <span class="pill ${t.pnl >= 0 ? '' : 'red'}">${t.pnl >= 0 ? 'WINNER' : 'LOSS'}</span></h2>
+              <small class="muted">${esc(t.side)} · Entry ${t.entry} · Size ${t.quantity}</small>
+            </div>
+            <button class="primary" onclick="openTrade(${t.id})">Edit</button>
+          </div>
+
+          <div class="formgrid">
+            <div class="field">
+              <label>Pre-trade analysis</label>
+              <div class="notice">${esc(t.pre_analysis || 'No pre-trade notes yet.')}</div>
+            </div>
+            <div class="field">
+              <label>Post-trade review</label>
+              <div class="notice">${esc(t.post_review || 'No post-trade review yet.')}</div>
+            </div>
+            <div class="field">
+              <label>Emotions</label>
+              <div class="notice">${esc(t.emotions || '—')}</div>
+            </div>
+            <div class="field">
+              <label>Lessons learned</label>
+              <div class="notice">${esc(t.lessons || '—')}</div>
+            </div>
+            <div class="field full">
+              <label>Tags</label>
+              <div class="pill">${esc(t.tags || 'No tags')}</div>
+            </div>
+            <div class="field full">
+              <label>Execution checklist</label>
+              ${JSON.parse(t.checklist || '[]').map(c => `<div class="check">✓ ${esc(c)}</div>`).join('') || '<span class="muted">No checklist selected</span>'}
+            </div>
+            <div class="field full">
+              <label>Screenshots</label>
+              <div class="row">
+                ${JSON.parse(t.screenshots || '[]').map(src => `<img class="screenshot" src="${src}" onclick="openScreenshot('${src}')" style="cursor:zoom-in">`).join('') || '<span class="muted">No screenshots attached</span>'}
+              </div>
+            </div>
+          </div>
+        `: '<div class="empty">Select a journal entry or add a trade.</div>'}
+      </div>
+    </div>
+
+    ${journalInsights()}
+  `;
+    }
+    function journalList() { return trades.map(t => `<button onclick="selected=${t.id};render()" style="width:100%;display:block;text-align:left;background:${selected === t.id ? '#0b1d31' : '#151719'};border:1px solid ${selected === t.id ? 'var(--blue)' : 'var(--line)'};border-radius:12px;padding:15px;margin-top:9px"><b>${esc(t.symbol)}</b><span class="right ${t.pnl >= 0 ? 'positive' : 'negative'}">${money(t.pnl)}</span><br><small class="muted">${esc(t.side)} · ${esc(t.opened || 'Date not set')}</small></button>`).join('') || '<div class="empty">Your journal is empty.</div>' } function journalSearch(q) { $('#journalList').innerHTML = trades.filter(t => t.symbol.toLowerCase().includes(q.toLowerCase())).map(t => `<button class="secondary" style="width:100%;margin-top:8px;text-align:left" onclick="selected=${t.id};render()">${esc(t.symbol)} · ${money(t.pnl)}</button>`).join('') }
+
+    function performancePage() {
+      let s = stats();
+      let gross = s.gp, loss = s.gl;
+
+      const best = trades.length
+        ? Math.max(...trades.map(t => Number(t.pnl) || 0))
+        : 0;
+
+      const worst = trades.length
+        ? Math.min(...trades.map(t => Number(t.pnl) || 0))
+        : 0;
+
+      const winners = trades.filter(t => (+t.pnl || 0) > 0);
+      const losers = trades.filter(t => (+t.pnl || 0) < 0);
+
+      const avgWin = winners.length
+        ? winners.reduce((a, t) => a + (+t.pnl || 0), 0) / winners.length
+        : 0;
+
+      const avgLoss = losers.length
+        ? losers.reduce((a, t) => a + (+t.pnl || 0), 0) / losers.length
+        : 0;
+
+      function breakdown(format) {
+        const groups = {};
+
+        trades.forEach(t => {
+          const date = new Date(t.closed || t.opened);
+          if (isNaN(date.getTime())) return;
+
+          const key = format === 'day'
+            ? date.toLocaleDateString()
+            : date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+
+          groups[key] = (groups[key] || 0) + (Number(t.pnl) || 0);
+        });
+
+        return Object.entries(groups)
+          .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+          .slice(0, 7);
+      }
+
+      function breakdownHTML(items) {
+        if (!items.length)
+          return '<p class="muted">No recorded trade dates yet.</p>';
+
+        return items.map(([label, value]) => `
+      <div class="row" style="padding:12px 0;border-bottom:1px solid var(--line)">
+        <span>${esc(label)}</span>
+        <b class="right ${value >= 0 ? 'positive' : 'negative'}">${money(value)}</b>
+      </div>
+    `).join('');
+      }
+
+      return `
+  <div class="sectionhead">
+    <h2>Performance Analytics</h2>
+    <div class="tabs">
+      ${['Today', '7 Days', '30 Days', '3 Months', '1 Year', 'All Time'].map(x =>
+        `<button class="${range === x ? 'active' : ''}" onclick="range='${x}';render()">${x}</button>`
+      ).join('')}
+    </div>
+  </div>
+
+  <div class="grid4">
+    <div class="card">
+      <div class="eyebrow">TOTAL P&L</div>
+      <div class="value">${money(s.total)}</div>
+      <small class="muted">From ${trades.length} trades</small>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">WIN RATE</div>
+      <div class="value">${s.rate.toFixed(1)}%</div>
+      <div class="bar"><span style="width:${s.rate}%"></span></div>
+      <small class="muted">${s.wins} wins · ${s.loss} losses</small>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">PROFIT FACTOR</div>
+      <div class="value">${s.pf.toFixed(2)}</div>
+      <small class="muted">Gross profit / gross loss</small>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">EXPECTANCY</div>
+      <div class="value">${money(s.avg)}</div>
+      <small class="muted">Average P&L per trade</small>
+    </div>
+  </div>
+
+  <div class="grid4 section">
+    <div class="card">
+      <div class="eyebrow">BEST TRADE</div>
+      <div class="value positive">${money(best)}</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">WORST TRADE</div>
+      <div class="value negative">${money(worst)}</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">AVERAGE WIN</div>
+      <div class="value positive">${money(avgWin)}</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">AVERAGE LOSS</div>
+      <div class="value negative">${money(avgLoss)}</div>
+    </div>
+  </div>
+
+  <div class="card section">
+    <div class="sectionhead">
+      <h2>Equity Curve</h2>
+      <span class="muted">Cumulative recorded P&L</span>
+    </div>
+    <div class="chartbox">
+      <canvas id="equity"></canvas>
+    </div>
+  </div>
+
+  <div class="split section">
+    <div class="card">
+      <h2>Win / Loss Distribution</h2>
+      <div class="bar" style="height:25px;margin:18px 0">
+        <span style="width:${s.rate}%"></span>
+      </div>
+      <div class="row">
+        <b class="positive">${s.wins} winners</b>
+        <b class="negative right">${s.loss} losers</b>
+      </div>
+      <hr style="border-color:var(--line)">
+      <div class="row">
+        <span>Gross Profit</span>
+        <b class="positive right">${money(gross)}</b>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <span>Gross Loss</span>
+        <b class="negative right">-${money(loss)}</b>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Long vs Short</h2>
+      ${['Long', 'Short'].map(side => {
+        let a = trades.filter(t => t.side === side);
+        let p = a.reduce((x, t) => x + (+t.pnl || 0), 0);
+        return `
+          <div style="margin-top:18px">
+            <div class="row">
+              <b>${side}</b>
+              <b class="right ${p >= 0 ? 'positive' : 'negative'}">${money(p)}</b>
+            </div>
+            <small class="muted">
+              ${a.length} trades · ${a.filter(t => t.pnl > 0).length} winners
+            </small>
+          </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <div class="split section">
+    <div class="card">
+      <h2>Daily Performance</h2>
+      ${breakdownHTML(breakdown('day'))}
+    </div>
+    <div class="card">
+      <h2>Monthly Performance</h2>
+      ${breakdownHTML(breakdown('month'))}
+    </div>
+  </div>
+
+  <div class="card section">
+    <h2>Your Stats</h2>
+    <div class="grid4">
+      ${[
+          ['Total trades', trades.length],
+          ['Winning trades', s.wins],
+          ['Losing trades', s.loss],
+          ['Average trade', money(s.avg)],
+          ['Largest profit', money(best)],
+          ['Largest loss', money(worst)],
+          ['Max drawdown', money(maxDrawdown())],
+          ['Win rate', s.rate.toFixed(1) + '%']
+        ].map(x => `
+        <div style="padding:14px;border-bottom:1px solid var(--line)">
+          <small class="muted">${x[0]}</small><br>
+          <b>${x[1]}</b>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+  `;
+    }
+
+    function maxDrawdown() {
+      let eq = 0, peak = 0, dd = 0;
+      trades.slice().reverse().forEach(t => {
+        eq += (+t.pnl || 0);
+        peak = Math.max(peak, eq);
+        dd = Math.max(dd, peak - eq);
+      });
+      return dd;
+    }
+    function tradeAnalysis() { let s = stats(), filtered = trades.filter(t => filter === 'All Trades' || (filter === 'Winners' && Number(t.pnl) > 0) || (filter === 'Losers' && Number(t.pnl) < 0) || (filter === 'Break-even' && Number(t.pnl) === 0)); let group = (key) => Object.values(filtered.reduce((a, t) => { let k = (t[key] || 'Unspecified').toString().trim() || 'Unspecified'; (a[k] ??= { name: k, count: 0, pnl: 0, wins: 0 }).count++; a[k].pnl += Number(t.pnl) || 0; if ((Number(t.pnl) || 0) > 0) a[k].wins++; return a }, {})).sort((a, b) => b.pnl - a.pnl); let symbols = group('symbol'), sessions = group('session'), setups = group('setup'); let selectedTrade = trades.find(t => t.id === selected); return `<div class="sectionhead"><div><h2>Trade Analysis</h2><p class="muted">Explore outcomes recorded in your journal. Historical results do not predict future outcomes.</p></div><div class="tabs">${['All Trades', 'Winners', 'Losers', 'Break-even'].map(x => `<button class="${filter === x ? 'active' : ''}" onclick="filter='${x}';render()">${x}</button>`).join('')}</div></div><div class="grid4"><div class="card"><div class="eyebrow">FILTERED TRADES</div><div class="value">${filtered.length}</div></div><div class="card"><div class="eyebrow">FILTERED NET P&L</div><div class="value ${filtered.reduce((a, t) => a + (Number(t.pnl) || 0), 0) >= 0 ? 'positive' : 'negative'}">${money(filtered.reduce((a, t) => a + (Number(t.pnl) || 0), 0))}</div></div><div class="card"><div class="eyebrow">WIN RATE</div><div class="value">${filtered.length ? (filtered.filter(t => Number(t.pnl) > 0).length / filtered.length * 100).toFixed(1) : '0.0'}%</div></div><div class="card"><div class="eyebrow">OVERALL PROFIT FACTOR</div><div class="value">${s.pf.toFixed(2)}</div></div></div><div class="split section"><div class="card"><h2>Trades</h2>${filtered.map(t => `<button class="secondary" style="width:100%;margin:5px 0;text-align:left" onclick="selected=${t.id};render()">${esc(t.symbol)} · ${esc(t.side)} <b class="right ${t.pnl >= 0 ? 'positive' : 'negative'}">${money(t.pnl)}</b></button>`).join('') || '<div class="empty">No trades in this filter.</div>'}</div><div class="card"><h2>Selected Trade</h2>${selectedTrade ? `<div class="row"><b>${esc(selectedTrade.symbol)}</b><span class="pill">${esc(selectedTrade.side)}</span><b class="right ${selectedTrade.pnl >= 0 ? 'positive' : 'negative'}">${money(selectedTrade.pnl)}</b></div><p class="muted">Entry ${esc(selectedTrade.entry)} · Exit ${esc(selectedTrade.exit)} · Size ${esc(selectedTrade.quantity)}</p><p><b>Setup:</b> ${esc(selectedTrade.setup || 'Not specified')}</p><p><b>Session:</b> ${esc(selectedTrade.session || 'Not specified')}</p><button class="secondary" onclick="openTrade(${selectedTrade.id})">Edit journal entry</button>` : '<div class="empty">Select a trade to inspect its details.</div>'}<hr style="border-color:var(--line);margin:20px 0"><h3>Trade Quality Snapshot</h3><div class="value">${trades.length ? Math.round(s.rate * .7 + Math.min(30, s.pf * 8)) : 0}/100</div><p class="muted">An illustrative journal score based on recorded outcomes only; not a signal or prediction.</p></div></div><div class="grid4 section" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[['By Symbol', symbols], ['By Session', sessions], ['By Setup', setups]].map(([title, arr]) => `<div class="card"><h2>${title}</h2>${arr.slice(0, 6).map(x => `<div style="padding:11px 0;border-bottom:1px solid var(--line)"><div class="row"><b>${esc(x.name)}</b><b class="right ${x.pnl >= 0 ? 'positive' : 'negative'}">${money(x.pnl)}</b></div><small class="muted">${x.count} trades · ${x.wins} wins</small></div>`).join('') || '<div class="empty">No data yet.</div>'}</div>`).join('')}</div>` }
+
+    function marketPage() {
+      const symbols = [
+        ['XAUUSD', 'Gold / US Dollar'],
+        ['EURUSD', 'Euro / US Dollar'],
+        ['GBPUSD', 'British Pound / US Dollar'],
+        ['USDJPY', 'US Dollar / Japanese Yen'],
+        ['BTCUSD', 'Bitcoin / US Dollar'],
+        ['US30', 'Dow Jones Index']
+      ];
+      const allSymbols = [
+        ...symbols,
+        ...customMarketSymbols.map(s => [s, 'Custom Symbol'])
+      ].sort((a, b) => {
+        const aFav = favouriteMarketSymbols.includes(a[0]);
+        const bFav = favouriteMarketSymbols.includes(b[0]);
+
+        return Number(bFav) - Number(aFav);
+      });
+
+      return `
+    <div class="sectionhead">
+      <div>
+        <h1>Market Overview</h1>
+        <p class="muted">Your market information and watchlist workspace.</p>
+      </div>
+      <span class="pill">Kolkata · IST</span>
+    </div>
+
+    <div class="notice">
+      Market prices and economic events are not connected to a live data provider.
+      No live quotes or trading signals are displayed.
+    </div>
+
+    <div class="grid4 section">
+      <div class="card">
+        <div class="eyebrow">Main Watchlist</div>
+        <h2>${allSymbols.length} Symbols</h2>
+        <p class="muted">Your tracked markets</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Market Time</div>
+        <h2 id="market-time">--:--:--</h2>
+        <p class="muted">India Standard Time</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Data Status</div>
+        <h2 style="color:var(--gold)">Offline</h2>
+        <p class="muted">Live feed not connected</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Workspace</div>
+        <h2>Watchlist</h2>
+        <p class="muted">Personal market tracking</p>
+      </div>
+    </div>
+
+    <div class="card section">
+      <div class="sectionhead">
+        <div>
+          <h2>Market Watchlist</h2>
+          <button
+  class="primary"
+  onclick="exportMarketWatchlist()"
+  style="margin-top:10px"
+>
+  ↓ Export Watchlist CSV
+</button>
+
+      <div style="margin-top:12px">
+  <label for="market-csv-import">Import Watchlist CSV</label>
+  <input
+    type="file"
+    id="market-csv-import"
+    accept=".csv,text/csv"
+    onchange="importMarketWatchlist(event)"
+  >
+</div>
+
+ <button
+  id="market-sort-button"
+  class="secondary"
+  onclick="sortMarketSymbolsAZ()"
+  style="margin-top:10px"
+>
+  ⇅ Sort A–Z
+</button>
+<div class="market-watch-filters">
+  <button class="secondary" onclick="filterMarketType('all')">All</button>
+  <button class="secondary" onclick="filterMarketType('favourites')">⭐ Favourites</button>
+  <button class="secondary" onclick="filterMarketType('custom')">Custom</button>
+</div>
+          <p class="muted">Search and explore your tracked symbols.</p>
+          <p class="muted" id="market-results-count">
+  Showing ${allSymbols.length} symbols
+</p>
+        </div>
+      </div>
+                  <div class="row section">
+        <input
+          id="new-market-symbol"
+          placeholder="Add symbol (e.g. NAS100)"
+          style="max-width:250px;padding:12px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px"
+        >
+        <button class="primary" onclick="addMarketSymbol()">+ Add Symbol</button>
+      </div>
+      <div class="row section" style="align-items:center;gap:10px">
+  <input
+    id="market-search"
+    placeholder="Search symbol..."
+    oninput="filterMarketSymbols()"
+    style="width:100%;max-width:350px;padding:12px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px"
+  >
+
+  <button
+    class="secondary"
+    onclick="clearMarketSearch()"
+  >
+    ✕ Clear
+  </button>
+  <button class="secondary" onclick="refreshMarketWatchlist()">
+  ↻ Refresh
+</button>
+</div>
+      <div class="tablewrap section">
+        <table>
+          <thead>
+  <tr>
+    <th>SYMBOL</th>
+    <th>MARKET</th>
+    <th>DATA STATUS</th>
+    <th>NOTES</th>
+    <th>ACTION</th>
+  </tr>
+</thead>
+          <tbody id="market-symbol-list">
+  ${allSymbols.map(([symbol, name]) => `
+    <tr class="market-symbol-row" data-symbol="${symbol}">
+      <td>
+  <strong>${symbol}</strong>
+  <button
+    class="secondary"
+    onclick="toggleMarketFavourite('${symbol}')"
+    title="Add to favourites"
+    style="margin-left:8px;padding:4px 8px"
+  >
+    ${favouriteMarketSymbols.includes(symbol) ? '⭐' : '☆'}
+  </button>
+</td>
+      <td>
+  ${name}
+  ${name === 'Custom Symbol' ? '<span class="pill">CUSTOM</span>' : ''}
+</td>
+      <td><span class="pill">Feed unavailable</span></td>
+
+<td>
+  <button
+    class="secondary"
+    onclick="editMarketNote('${symbol}')"
+  >
+    ${marketSymbolNotes[symbol] ? '✎ Edit Note' : '+ Add Note'}
+  </button>
+
+  <div class="market-note-preview">
+    ${marketSymbolNotes[symbol]
+          ? escapeMarketHTML(marketSymbolNotes[symbol]).slice(0, 45) +
+          (marketSymbolNotes[symbol].length > 45 ? '...' : '')
+          : 'No note added'}
+  </div>
+</td>
+      <td>
+  ${name === 'Custom Symbol' ? `
+    <button class="secondary" onclick="editMarketSymbol('${symbol}')">
+      ✎ Edit
+    </button>
+  ` : ''}
+
+  <button class="danger" onclick="removeMarketSymbol('${symbol}')">
+    Remove
+  </button>
+</td>>
+    </tr>
+  `).join('')}
+</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card section">
+      <h2>Trading Sessions</h2>
+      <p class="muted">Session schedule in Indian Standard Time.</p>
+
+      <div class="sessionbar">
+        <span style="flex:6">Asia</span>
+        <span style="flex:1">Pre-London</span>
+        <span style="flex:3">London</span>
+      </div>
+
+      <div class="split">
+        <div>
+          <b>Asian Session</b>
+<p class="muted">05:30 – 11:30 IST</p>
+<p id="asia-status">Checking...</p>
+        </div>
+        <div>
+          <b>Pre-London</b>
+          <p class="muted">11:30 – 12:30 IST</p>
+          <p id="prelondon-status">Checking...</p>
+        </div>
+        <div>
+          <b>London Session</b>
+          <p class="muted">Session time not configured</p>
+          <p id="london-status">Checking...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card section">
+      <div class="sectionhead">
+        <div>
+          <h2>Economic Calendar</h2>
+          <p class="muted">Economic events and market news.</p>
+        </div>
+        <span class="pill">Coming soon</span>
+      </div>
+      <div class="empty">
+        Economic calendar provider is not connected yet.
+        Live events will appear here after integration.
+      </div>
+    </div>
+  `;
+    }
+
+
+    let customMarketSymbols = JSON.parse(
+      localStorage.getItem('customMarketSymbols') || '[]'
+    );
+
+    let favouriteMarketSymbols = JSON.parse(
+      localStorage.getItem('favouriteMarketSymbols') || '[]'
+    );
+
+    function toggleMarketFavourite(symbol) {
+      if (favouriteMarketSymbols.includes(symbol)) {
+        favouriteMarketSymbols = favouriteMarketSymbols.filter(
+          item => item !== symbol
+        );
+      } else {
+        favouriteMarketSymbols.push(symbol);
+      }
+
+      localStorage.setItem(
+        'favouriteMarketSymbols',
+        JSON.stringify(favouriteMarketSymbols)
+      );
+
+      render();
+
+    }
+
+    let marketSymbolNotes = JSON.parse(
+      localStorage.getItem('marketSymbolNotes') || '{}'
+    );
+
+    function escapeMarketHTML(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function editMarketNote(symbol) {
+      const currentNote = marketSymbolNotes[symbol] || '';
+
+      const note = prompt(
+        `Write your observation for ${symbol}:`,
+        currentNote
+      );
+
+      if (note === null) return;
+
+      marketSymbolNotes[symbol] = note;
+
+      localStorage.setItem(
+        'marketSymbolNotes',
+        JSON.stringify(marketSymbolNotes)
+      );
+
+      render();
+    }
+
+    function filterMarketSymbols() {
+      const input = document.getElementById('market-search');
+      const rows = document.querySelectorAll('.market-symbol-row');
+
+      if (!input) return;
+
+      const query = input.value.toLowerCase();
+
+      const activeButton = document.querySelector(
+        '.market-watch-filters .active-filter'
+      );
+
+      const activeFilter = activeButton
+        ? activeButton.textContent.includes('Favourites')
+          ? 'favourites'
+          : activeButton.textContent.trim() === 'Custom'
+            ? 'custom'
+            : 'all'
+        : 'all';
+
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const symbol = row.dataset.symbol;
+        const matchesSearch = row.textContent.toLowerCase().includes(query);
+        const isFavourite = favouriteMarketSymbols.includes(symbol);
+        const isCustom = customMarketSymbols.includes(symbol);
+
+        let matchesFilter = true;
+
+        if (activeFilter === 'favourites') {
+          matchesFilter = isFavourite;
+        } else if (activeFilter === 'custom') {
+          matchesFilter = isCustom;
+        }
+
+        const show = matchesSearch && matchesFilter;
+
+        row.style.display = show ? '' : 'none';
+
+        if (show) visibleCount++;
+      });
+
+      const tableWrap = document.querySelector('#market-symbol-list')?.parentElement?.parentElement;
+      if (!tableWrap) return;
+
+      let emptyState = document.getElementById('market-empty-state');
+
+      if (!emptyState) {
+        emptyState = document.createElement('div');
+        emptyState.id = 'market-empty-state';
+        emptyState.className = 'market-empty-state';
+        tableWrap.appendChild(emptyState);
+      }
+
+      emptyState.innerHTML = `
+    <strong>🔍 No Symbols Found</strong>
+    <span>Try another search or change your filter.</span>
+  `;
+
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+      const resultsCount = document.getElementById('market-results-count');
+
+      if (resultsCount) {
+        resultsCount.textContent =
+          `Showing ${visibleCount} of ${rows.length} symbols`;
+      }
+    }
+
+    function clearMarketSearch() {
+      const input = document.getElementById('market-search');
+
+      if (!input) return;
+
+      input.value = '';
+      filterMarketSymbols();
+    }
+
+    function refreshMarketWatchlist() {
+      const input = document.getElementById('market-search');
+
+      if (input) input.value = '';
+
+      filterMarketType('all');
+      filterMarketSymbols();
+    }
+
+    let marketSortDirection = 'asc';
+
+    function sortMarketSymbolsAZ() {
+      const tbody = document.getElementById('market-symbol-list');
+      if (!tbody) return;
+
+      const rows = [...tbody.querySelectorAll('.market-symbol-row')];
+
+      marketSortDirection =
+        marketSortDirection === 'asc' ? 'desc' : 'asc';
+
+      rows.sort((a, b) => {
+        const symbolA = a.dataset.symbol || '';
+        const symbolB = b.dataset.symbol || '';
+
+        const favA = favouriteMarketSymbols.includes(symbolA);
+        const favB = favouriteMarketSymbols.includes(symbolB);
+
+        if (favA !== favB) return Number(favB) - Number(favA);
+
+        return marketSortDirection === 'asc'
+          ? symbolA.localeCompare(symbolB)
+          : symbolB.localeCompare(symbolA);
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+
+      const sortButton = document.getElementById('market-sort-button');
+
+      if (sortButton) {
+        sortButton.textContent =
+          marketSortDirection === 'asc' ? '↓ Sort A–Z' : '↑ Sort Z–A';
+      }
+    }
+    function filterMarketType(type) {
+      const rows = document.querySelectorAll('.market-symbol-row');
+      const buttons = document.querySelectorAll('.market-watch-filters button');
+
+      buttons.forEach(button => {
+        button.classList.remove('active-filter');
+
+        if (
+          (type === 'all' && button.textContent.trim() === 'All') ||
+          (type === 'favourites' && button.textContent.includes('Favourites')) ||
+          (type === 'custom' && button.textContent.trim() === 'Custom')
+        ) {
+          button.classList.add('active-filter');
+        }
+      });
+
+      rows.forEach(row => {
+        const symbol = row.dataset.symbol;
+        const isFavourite = favouriteMarketSymbols.includes(symbol);
+        const isCustom = customMarketSymbols.includes(symbol);
+
+        let show = true;
+
+        if (type === 'favourites') show = isFavourite;
+        else if (type === 'custom') show = isCustom;
+
+        row.style.display = show ? '' : 'none';
+      });
+
+      const visibleCount = [...rows].filter(row => {
+        return row.style.display !== 'none';
+      }).length;
+
+      const resultsCount = document.getElementById('market-results-count');
+
+      if (resultsCount) {
+        resultsCount.textContent =
+          `Showing ${visibleCount} of ${rows.length} symbols`;
+      }
+
+    }
+    function exportMarketWatchlist() {
+      const symbols = [
+        ['XAUUSD', 'Gold / US Dollar'],
+        ['EURUSD', 'Euro / US Dollar'],
+        ['GBPUSD', 'British Pound / US Dollar'],
+        ['USDJPY', 'US Dollar / Japanese Yen'],
+        ['BTCUSD', 'Bitcoin / US Dollar'],
+        ['US30', 'Dow Jones Index'],
+        ...customMarketSymbols.map(s => [s, 'Custom Symbol'])
+      ];
+
+      const rows = [
+        ['Symbol', 'Market Type', 'Favourite Status'],
+        ...symbols.map(([symbol, market]) => [
+          symbol,
+          market,
+          favouriteMarketSymbols.includes(symbol) ? 'Favourite' : 'Normal'
+        ])
+      ];
+
+      const csv = rows.map(row =>
+        row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = 'market-watchlist.csv';
+      link.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+    function importMarketWatchlist(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const lines = e.target.result.split(/\r?\n/);
+        let added = 0;
+
+        lines.slice(1).forEach(line => {
+          const columns = line.match(/("([^"]|"")*"|[^,]*)(,|$)/g);
+          if (!columns) return;
+
+          const symbol = columns[0]
+            .replace(/,$/, '')
+            .replace(/^"|"$/g, '')
+            .replace(/""/g, '"')
+            .trim()
+            .toUpperCase();
+
+          if (!/^[A-Z0-9._-]{2,15}$/.test(symbol)) return;
+
+          const exists = [
+            'XAUUSD', 'EURUSD', 'GBPUSD',
+            'USDJPY', 'BTCUSD', 'US30',
+            ...customMarketSymbols
+          ].includes(symbol);
+
+          if (!exists) {
+            customMarketSymbols.push(symbol);
+            added++;
+          }
+        });
+
+        localStorage.setItem(
+          'customMarketSymbols',
+          JSON.stringify(customMarketSymbols)
+        );
+
+        alert(`${added} new symbol(s) imported successfully.`);
+        render();
+      };
+
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function addMarketSymbol() {
+      const input = document.getElementById('new-market-symbol');
+      if (!input) return;
+
+      const symbol = input.value.trim().toUpperCase();
+
+      if (!/^[A-Z0-9._-]{2,15}$/.test(symbol)) {
+        alert('Enter a valid symbol.');
+        return;
+      }
+
+      const exists = [...document.querySelectorAll('.market-symbol-row')]
+        .some(row => row.dataset.symbol === symbol);
+
+      if (exists) {
+        alert('This symbol is already in your watchlist.');
+        return;
+      }
+
+      customMarketSymbols.push(symbol);
+      localStorage.setItem(
+        'customMarketSymbols',
+        JSON.stringify(customMarketSymbols)
+      );
+
+      render();
+    }
+
+    function removeMarketSymbol(symbol) {
+      const confirmRemove = confirm(
+        `Are you sure you want to remove ${symbol} from your watchlist?`
+      );
+
+      if (!confirmRemove) return;
+
+      customMarketSymbols = customMarketSymbols.filter(
+        item => item !== symbol
+      );
+
+      favouriteMarketSymbols = favouriteMarketSymbols.filter(
+        item => item !== symbol
+      );
+
+      delete marketSymbolNotes[symbol];
+
+      localStorage.setItem(
+        'customMarketSymbols',
+        JSON.stringify(customMarketSymbols)
+      );
+
+      localStorage.setItem(
+        'favouriteMarketSymbols',
+        JSON.stringify(favouriteMarketSymbols)
+      );
+
+      localStorage.setItem(
+        'marketSymbolNotes',
+        JSON.stringify(marketSymbolNotes)
+      );
+
+      render();
+    }
+
+    function editMarketSymbol(oldSymbol) {
+      const newSymbol = prompt(
+        `Edit symbol ${oldSymbol}:`,
+        oldSymbol
+      );
+
+      if (newSymbol === null) return;
+
+      const updatedSymbol = newSymbol.trim().toUpperCase();
+
+      if (!/^[A-Z0-9._-]{2,15}$/.test(updatedSymbol)) {
+        alert('Enter a valid symbol.');
+        return;
+      }
+
+      if (updatedSymbol === oldSymbol) return;
+
+      const exists = [
+        'XAUUSD',
+        'EURUSD',
+        'GBPUSD',
+        'USDJPY',
+        'BTCUSD',
+        'US30',
+        ...customMarketSymbols.filter(s => s !== oldSymbol)
+      ].includes(updatedSymbol);
+
+      if (exists) {
+        alert('This symbol already exists.');
+        return;
+      }
+
+      customMarketSymbols = customMarketSymbols.map(symbol =>
+        symbol === oldSymbol ? updatedSymbol : symbol
+      );
+
+      if (favouriteMarketSymbols.includes(oldSymbol)) {
+        favouriteMarketSymbols = favouriteMarketSymbols.map(symbol =>
+          symbol === oldSymbol ? updatedSymbol : symbol
+        );
+      }
+
+      if (marketSymbolNotes[oldSymbol] !== undefined) {
+        marketSymbolNotes[updatedSymbol] = marketSymbolNotes[oldSymbol];
+        delete marketSymbolNotes[oldSymbol];
+      }
+
+      localStorage.setItem('customMarketSymbols', JSON.stringify(customMarketSymbols));
+      localStorage.setItem('favouriteMarketSymbols', JSON.stringify(favouriteMarketSymbols));
+      localStorage.setItem('marketSymbolNotes', JSON.stringify(marketSymbolNotes));
+
+      render();
+    }
+
+    function marketClock() {
+      const now = new Date();
+
+      const time = now.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+
+      const headerClock = document.getElementById('clock');
+      const marketTime = document.getElementById('market-time');
+
+      if (headerClock) {
+        headerClock.textContent = '◷ ' + time;
+      }
+
+      if (marketTime) {
+        marketTime.textContent = time + ' IST';
+      }
+    }
+    function updateTradingSession() {
+      const now = new Date();
+
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).formatToParts(now);
+
+      const hour = Number(parts.find(p => p.type === 'hour').value);
+      const minute = Number(parts.find(p => p.type === 'minute').value);
+      const currentTime = hour * 60 + minute;
+
+      const sessions = [
+        { id: 'asia-status', start: 330, end: 690 },
+        { id: 'prelondon-status', start: 690, end: 750 },
+        { id: 'london-status', start: 750, end: 1020 }
+      ];
+
+      sessions.forEach(session => {
+        const element = document.getElementById(session.id);
+        if (!element) return;
+
+        element.textContent =
+          currentTime >= session.start && currentTime < session.end
+            ? '● ACTIVE NOW'
+            : '○ CLOSED';
+
+        element.style.color =
+          currentTime >= session.start && currentTime < session.end
+            ? '#16c784'
+            : '#999';
+      });
+    }
+    function aiPage() {
+      let s = stats();
+      return `
+    <div class="sectionhead">
+      <div>
+        <h2>AI-Powered Trading Reports</h2>
+        <p class="muted">Review patterns from your own journal data.</p>
+      </div>
+      <button class="primary" onclick="generateReport()">Generate Report</button>
+    </div>
+    <div class="notice">Powered by Ollama · Qwen 2.5 · Free Local AI</div>
+    <div class="card section" id="aireport">
+      <h2>Trading Overview</h2>
+      <p class="muted">${trades.length} trades · Net P&L ${money(s.total)} · Win rate ${s.rate.toFixed(1)}%</p>
+      <p>Add trades and select Generate Report to create an AI analysis.</p>
+      <div id="aioutput"></div>
+    </div>
+  `;
+    }
+
+    async function generateReport() {
+      const output = $('#aioutput');
+      if (!output) return;
+
+      output.textContent = 'Generating AI report with local Ollama... Please wait.';
+
+      try {
+        const response = await fetch('/api/ai/report', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'AI report failed');
+        }
+
+        output.textContent = data.report;
+
+      } catch (error) {
+        output.textContent = 'AI Error: ' + error.message;
+      }
+    }
+
+    function tradingPage() { return `<div class="sectionhead"><div><h1>Trading</h1><p class="muted">Dedicated TradingView chart workspace · chart study and paper analysis only</p></div><div class="row"><button class="secondary" onclick="openTradingView()">Open TradingView ↗</button><button class="primary" onclick="toggleTradingFullscreen()">⛶ Full Screen</button></div></div><div class="card" style="padding:10px"><div class="row" style="padding:5px 5px 12px"><span class="pill">TRADINGVIEW</span><span class="muted">Drawing toolbar enabled · Symbol and timeframe controls available</span><span class="right muted">Default: OANDA:XAUUSD</span></div><div id="tradingview-fullscreen" style="height:calc(100vh - 190px);min-height:560px;width:100%;background:#0b0e11;border-radius:10px;overflow:hidden"><div id="tradingview-chart" style="height:100%;width:100%"></div></div></div><p class="muted" style="font-size:11px;margin-top:10px">TradingView provides the chart and its available drawing tools. Some advanced Supercharts features and saving/syncing drawings may require signing in to TradingView or using its full website.</p>` }
+    function loadTradingViewChart() { const host = $('#tradingview-chart'); if (!host || host.dataset.loaded) return; host.dataset.loaded = '1'; const script = document.createElement('script'); script.type = 'text/javascript'; script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'; script.async = true; script.innerHTML = JSON.stringify({ autosize: true, symbol: 'OANDA:XAUUSD', interval: '60', timezone: 'Asia/Kolkata', theme: 'dark', style: '1', locale: 'en', allow_symbol_change: true, calendar: false, details: false, hide_side_toolbar: false, hide_top_toolbar: false, hide_legend: false, hide_volume: false, hotlist: false, save_image: true, withdateranges: true, studies: [], backgroundColor: '#0d0f11', gridColor: 'rgba(42,48,56,0.45)', show_popup_button: true }); host.appendChild(script) }
+    function toggleTradingFullscreen() { const el = $('#tradingview-fullscreen'); if (!el) return; if (!document.fullscreenElement) { (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el) } else { (document.exitFullscreen || document.webkitExitFullscreen)?.call(document) } }
+    function openTradingView() { window.open('https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD', '_blank', 'noopener,noreferrer') }
+    function backtestPage() { return `<div class="sectionhead"><div><h2>Backtesting</h2><p class="muted">Manual strategy review and historical CSV testing.</p></div></div><div class="notice">TradingView chart embeds depend on TradingView availability. CSV backtests run on data you upload; they do not place trades.</div><div class="split section"><div class="card"><h2>TradingView Chart</h2><div style="height:390px"><iframe title="TradingView chart" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=OANDA%3AXAUUSD&interval=60&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0f1113&theme=dark&style=1&timezone=Asia%2FKolkata" style="width:100%;height:100%;border:0;border-radius:10px" allowfullscreen></iframe></div></div><div class="card"><h2>CSV Strategy Tester</h2><p class="muted">Upload OHLC CSV with columns: time, open, high, low, close.</p><div class="field"><label>Historical candles CSV</label><input id="backcsv" type="file" accept=".csv"></div><div class="field" style="margin-top:12px"><label>Strategy</label><select id="strategy"><option value="ma">Moving average crossover (20 / 50)</option><option value="breakout">20-bar close breakout</option></select></div><div class="field" style="margin-top:12px"><label>Starting balance ($)</label><input id="capital" type="number" value="10000"></div><button class="primary" style="margin-top:15px" onclick="runBacktest()">Run Backtest</button><div id="btresult" class="section"></div></div></div><div class="card section"><h2>Manual Backtest Notes</h2><div class="field"><label>Strategy / setup</label><input id="btname" placeholder="e.g. London session sweep"></div><div class="field" style="margin-top:12px"><label>Observations</label><textarea id="btnote" placeholder="Record rules, screenshots and outcomes..."></textarea></div><button class="secondary" style="margin-top:12px" onclick="saveBTNote()">Save note</button><div id="btnotes" class="muted"></div></div>` }
+    function runBacktest() { let f = $('#backcsv').files[0]; if (!f) return alert('Choose a CSV file first.'); let reader = new FileReader(); reader.onload = () => { let lines = reader.result.trim().split(/\r?\n/), head = lines.shift().toLowerCase().split(',').map(x => x.trim()), idx = head.indexOf('close'); if (idx < 0) return alert('CSV must include a close column.'); let c = lines.map(l => +l.split(',')[idx]).filter(x => Number.isFinite(x) && x > 0), s = $('#strategy').value, starting = +$('#capital').value, bal = Number.isFinite(starting) && starting > 0 ? starting : 10000, pos = 0, entry = 0, closed = []; if (c.length < 51) return alert('CSV needs at least 51 valid positive closing prices for this test.'); for (let i = 50; i < c.length; i++) { let a = c.slice(Math.max(0, i - 20), i).reduce((x, y) => x + y, 0) / Math.min(20, i), b = c.slice(Math.max(0, i - 50), i).reduce((x, y) => x + y, 0) / Math.min(50, i); let signal = s === 'ma' ? (a > b ? 1 : -1) : (c[i] > Math.max(...c.slice(i - 20, i)) ? 1 : c[i] < Math.min(...c.slice(i - 20, i)) ? -1 : 0); if (pos && signal !== pos) { let p = (c[i] - entry) * pos; bal += p; closed.push(p); pos = 0 } if (!pos && signal) { pos = signal; entry = c[i] } } if (pos) { let p = (c.at(-1) - entry) * pos; bal += p; closed.push(p) } let wins = closed.filter(x => x > 0).length; $('#btresult').innerHTML = `<div class="notice">${closed.length} closed signal trades · Ending balance $${bal.toFixed(2)} · Net ${money(bal - starting)} · Win rate ${closed.length ? (wins / closed.length * 100).toFixed(1) : 0}%</div><small class="muted">Illustrative close-to-close test only; excludes spread, commission, slippage and position sizing.</small>` }; reader.readAsText(f) } function renderBTNotes() { const el = $('#btnotes'); if (!el) return; let n = []; try { n = JSON.parse(localStorage.getItem('bt-notes') || '[]') } catch { } el.innerHTML = n.length ? n.map((x, i) => `<div class="notice" style="margin-top:10px"><b>${esc(x.name || 'Untitled setup')}</b><p style="white-space:pre-wrap">${esc(x.note || '')}</p><button class="secondary" onclick="deleteBTNote(${i})">Delete note</button></div>`).join('') : 'No saved backtest notes yet.' } function saveBTNote() { let name = $('#btname').value.trim(), note = $('#btnote').value.trim(); if (!name && !note) return alert('Add a setup name or observation first.'); let n = JSON.parse(localStorage.getItem('bt-notes') || '[]'); n.unshift({ name, note, created: new Date().toISOString() }); localStorage.setItem('bt-notes', JSON.stringify(n)); $('#btname').value = ''; $('#btnote').value = ''; renderBTNotes() } function deleteBTNote(i) { let n = JSON.parse(localStorage.getItem('bt-notes') || '[]'); n.splice(i, 1); localStorage.setItem('bt-notes', JSON.stringify(n)); renderBTNotes() }
+    function loungePage() { return `<div class="sectionhead"><h2>Traders Lounge</h2><span class="pill">Private workspace preview</span></div><div class="card"><h2>Community & Leaderboard</h2><p class="muted">Community publishing, trader profiles and public leaderboard require a hosted multi-user service and moderation controls.</p><div class="empty">No public trader posts yet.</div></div>` }
+
+function toolsPage() {
+  return `
+  <div class="sectionhead">
+    <div>
+      <h1>Trading Tools</h1>
+      <p class="muted">Calculators and utilities for your trading workflow.</p>
+    </div>
+  </div>
+
+  <div class="grid4">
+    <div class="card">
+      <h2>Position Size Calculator</h2>
+
+      <div class="field">
+        <label>Asset</label>
+        <select id="asset">
+          <option value="XAUUSD">XAUUSD — Gold</option>
+          <option value="EURUSD">EURUSD — Forex</option>
+          <option value="GBPUSD">GBPUSD — Forex</option>
+          <option value="USDJPY">USDJPY — Forex</option>
+          <option value="BTCUSD">BTCUSD — Bitcoin</option>
+          <option value="US30">US30 — Dow Jones</option>
+          <option value="NAS100">NAS100 — Nasdaq</option>
+          <option value="CUSTOM">Custom Asset</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <label>Account balance ($)</label>
+        <input id="balance" type="number" value="10000" min="0">
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <label>Risk (%)</label>
+        <input id="riskpct" type="number" value="1" min="0" max="100" step="0.1">
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <label>Stop distance (points)</label>
+        <input id="stopdist" type="number" value="100" min="0" step="any">
+      </div>
+
+      <div class="field" style="margin-top:10px">
+  <label>Automatic Pip / Point Value ($)</label>
+  <input id="pointvalue" type="text" value="Auto" readonly>
+</div>
+
+      <p class="muted" style="font-size:12px;margin-top:8px">
+        Enter the point value for your selected asset using your broker's contract specifications.
+      </p>
+
+      <button class="primary" style="margin-top:12px" onclick="calcLot()">Calculate</button>
+      <div id="lotresult" class="value"></div>
+    </div>
+
+    <div class="card">
+      <h2>Risk / Reward</h2>
+      <div class="field">
+        <label>Risk amount ($)</label>
+        <input id="riskamt" type="number" value="100">
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label>Reward ratio</label>
+        <select id="rrcalc">
+          <option>1:2</option>
+          <option>1:2.5</option>
+          <option>1:3</option>
+        </select>
+      </div>
+      <button class="primary" style="margin-top:12px" onclick="calcRR()">Calculate</button>
+      <div id="rrresult" class="value"></div>
+    </div>
+
+    <div class="card">
+      <h2>Forex Market Hours</h2>
+      <p class="muted">Indicative UTC session schedule</p>
+      <p>Asian · 00:00–08:00</p>
+      <p>London · 08:00–13:00</p>
+      <p>New York · 13:00–22:00</p>
+      <div class="notice">Session times shift with daylight saving.</div>
+    </div>
+
+    <div class="card">
+      <h2>Trader POV</h2>
+      <p class="muted">Shareable read-only profile preview.</p>
+      <button class="secondary" onclick="alert('Public profile publishing will be enabled after deployment.')">
+        Preview profile →
+      </button>
+    </div>
+  </div>`;
+}
+
+
+function calcLot() {
+  const balance = Number($('#balance').value);
+  const riskPct = Number($('#riskpct').value);
+  const stopDist = Number($('#stopdist').value);
+  const asset = $('#asset').value;
+  const result = $('#lotresult');
+
+  // Illustrative default assumptions
+  const pointValues = {
+    XAUUSD: 10,
+    EURUSD: 10,
+    GBPUSD: 10,
+    USDJPY: 10,
+    BTCUSD: 1,
+    US30: 1,
+    NAS100: 1,
+    CUSTOM: 1
+  };
+
+  const pointValue = pointValues[asset];
+
+  if (
+    !Number.isFinite(balance) || balance <= 0 ||
+    !Number.isFinite(riskPct) || riskPct <= 0 || riskPct > 100 ||
+    !Number.isFinite(stopDist) || stopDist <= 0
+  ) {
+    result.textContent = 'Please enter valid values.';
+    return;
+  }
+
+  const riskAmount = balance * riskPct / 100;
+  const lotSize = riskAmount / (stopDist * pointValue);
+
+  $('#pointvalue').value = '$' + pointValue.toFixed(2);
+
+  result.innerHTML = `
+    <div style="margin-top:12px">
+      <div class="muted">Asset: ${asset}</div>
+      <div>Risk Amount: $${riskAmount.toFixed(2)}</div>
+      <div>Point Value: $${pointValue.toFixed(2)}</div>
+      <div style="font-size:22px;font-weight:700;margin-top:8px">
+        Estimated Size: ${lotSize.toFixed(3)} lots
+      </div>
+      <div class="muted" style="font-size:11px;margin-top:8px">
+        Educational estimate using illustrative assumptions.
+      </div>
+    </div>`;
+}
+
+function calcRR() {
+  let r = +$('#riskamt').value;
+  let ratio = +$('#rrcalc').value.split(':')[1];
+  $('#rrresult').textContent = '$' + (r * ratio).toFixed(2) + ' target';
+}
+
+    function sanctuaryPage() {
+      return `
+  <div class="sectionhead">
+    <div>
+      <h2>Sanctuary</h2>
+      <p class="muted">Focus, meditation and discipline timer</p>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:650px;margin:auto;text-align:center;padding:35px">
+    <div class="eyebrow">YOUR FOCUS SPACE</div>
+
+    <div style="margin:22px auto;max-width:300px">
+      <label class="muted">Choose Session</label>
+      <select id="sanctuary_mode" class="field" style="width:100%;padding:12px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px">
+        <option>Meditation</option>
+        <option>Deep Study</option>
+        <option>Break</option>
+        <option>Mindfulness</option>
+      </select>
+    </div>
+
+    <div id="timerdisplay" style="font-size:64px;font-weight:800;margin:25px">15:00</div>
+
+    <div class="eyebrow">QUICK TIMER</div>
+    <div class="row" style="justify-content:center;margin:15px 0">
+      <button class="secondary" onclick="setTimer(5)">5 min</button>
+      <button class="secondary" onclick="setTimer(15)">15 min</button>
+      <button class="secondary" onclick="setTimer(25)">25 min</button>
+      <button class="secondary" onclick="setTimer(45)">45 min</button>
+    </div>
+
+    <div class="section">
+      <div class="field" style="max-width:250px;margin:auto">
+        <label>Custom Duration (minutes)</label>
+        <input id="custom_minutes" type="number" min="1" max="180" placeholder="Enter minutes">
+      </div>
+      <button class="secondary" style="margin-top:12px" onclick="setCustomTimer()">Set Custom Timer</button>
+    </div>
+
+    <div class="row" style="justify-content:center;margin-top:25px">
+      <button class="primary" id="timerstart" onclick="startTimer()">Start</button>
+      <button class="secondary" onclick="pauseTimer()">Pause</button>
+      <button class="secondary" onclick="resetTimer()">Reset</button>
+    </div>
+          <button class="secondary" style="margin-top:18px"
+  onclick="enableSanctuaryNotifications()">
+  Enable Browser Notifications
+</button>
+    <div class="notice" style="margin-top:25px">
+      Take a break from charts. Focus on yourself and return with a clear mind.
+    </div>
+  </div>`;
+    }
+
+    let timerTotal = 900, timerLeft = 900, timerInt = null;
+
+    function setTimer(m) {
+      pauseTimer();
+      timerTotal = m * 60;
+      timerLeft = timerTotal;
+      timerDisplay();
+    }
+
+    function setCustomTimer() {
+      const input = document.getElementById('custom_minutes');
+      const minutes = Number(input?.value);
+
+      if (!Number.isInteger(minutes) || minutes < 1 || minutes > 180) {
+        alert('Enter a duration between 1 and 180 minutes.');
+        return;
+      }
+
+      setTimer(minutes);
+    }
+
+    function timerDisplay() {
+      let el = $('#timerdisplay');
+      if (el) {
+        el.textContent =
+          String(Math.floor(timerLeft / 60)).padStart(2, '0') + ':' +
+          String(timerLeft % 60).padStart(2, '0');
+      }
+    }
+
+
+    function startTimer() {
+      if (timerInt) return;
+
+      timerInt = setInterval(() => {
+        timerLeft = Math.max(0, timerLeft - 1);
+        timerDisplay();
+
+        if (!timerLeft) {
+          pauseTimer();
+          sanctuaryComplete();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInt);
+      timerInt = null;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timerLeft = timerTotal;
+      timerDisplay();
+    }
+
+
+    function playSanctuaryAlarm() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audio = new AudioContext();
+
+        [0, 0.5, 1].forEach(delay => {
+          const oscillator = audio.createOscillator();
+          const gain = audio.createGain();
+
+          oscillator.connect(gain);
+          gain.connect(audio.destination);
+
+          oscillator.frequency.value = 660;
+          gain.gain.setValueAtTime(0.15, audio.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(
+            0.001, audio.currentTime + delay + 0.3
+          );
+
+          oscillator.start(audio.currentTime + delay);
+          oscillator.stop(audio.currentTime + delay + 0.3);
+        });
+      } catch (e) {
+        console.log('Audio alarm unavailable:', e);
+      }
+    }
+
+    function sanctuaryComplete() {
+      playSanctuaryAlarm();
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Sanctuary Session Complete', {
+          body: 'Your focus session is complete. Well done!'
+        });
+      }
+
+      alert('Your Sanctuary session is complete. Well done!');
+    }
+
+    function enableSanctuaryNotifications() {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+          alert(permission === 'granted'
+            ? 'Notifications enabled!'
+            : 'Notification permission was not granted.');
+        });
+      } else {
+        alert('Browser notifications are not supported.');
+      }
+    }
+
+
+    let settingsTab = 'profile';
+
+    function setSettingsTab(tab) {
+      settingsTab = tab;
+      render();
+    }
+
+    function settingsPage() {
+      const tabs = [
+        ['profile', 'Profile'],
+        ['platform', 'Platform'],
+        ['rules', 'Trading Rules'],
+        ['appearance', 'Appearance'],
+        ['security', 'Security']
+      ];
+
+      let content = '';
+
+      if (settingsTab === 'profile') {
+        content = `
+      <div class="section">
+        <h2>Workspace Profile</h2>
+        <p class="muted">Personalize your trading workspace.</p>
+        <div class="field">
+          <label>Workspace Name</label>
+          <input id="workspace_name" value="${esc(localStorage.getItem('workspace_name') || 'My Trading Desk')}">
+        </div>
+        <button class="primary" style="margin-top:16px" onclick="saveWorkspaceProfile()">Save Profile</button>
+      </div>`;
+      }
+
+      else if (settingsTab === 'platform') {
+        content = `
+      <div class="section">
+        <h2>Trading Platform</h2>
+        <div class="notice">
+          <strong>Paper Journal Mode</strong><br>
+          This dashboard currently does not connect to MT4, MT5 or a live broker.
+          You can use it to record and review simulated trades.
+        </div>
+        <div class="field" style="margin-top:16px">
+          <label>Preferred Platform</label>
+          <select id="preferred_platform">
+            ${['TradingView', 'MT5', 'MT4', 'Other'].map(x =>
+          `<option ${localStorage.getItem('preferred_platform') === x ? 'selected' : ''}>${x}</option>`
+        ).join('')}
+          </select>
+        </div>
+        <button class="primary" style="margin-top:16px" onclick="savePlatformPreference()">Save Preference</button>
+      </div>`;
+      }
+
+      else if (settingsTab === 'rules') {
+        content = `
+      <div class="section">
+        <h2>Trading Rules</h2>
+        <div class="notice">Set personal risk limits to support discipline. Values are saved to your account.</div>
+        <div class="formgrid section">
+          ${[
+            ['Max Risk Per Trade (%)', 'risk'],
+            ['Max Trades Per Day', 'max_trades'],
+            ['Max Daily Loss (%)', 'daily_loss'],
+            ['Max Losing Trades (consecutive)', 'losing_streak']
+          ].map(([l, k]) => `
+            <div class="field">
+              <label>${l}</label>
+              <input id="rule_${k}" type="number" value="${rules[k] ?? ''}">
+            </div>`).join('')}
+          <div class="field">
+            <label>Risk / Reward Ratio</label>
+            <select id="rule_rr">
+              ${['1:1', '1:1.5', '1:2', '1:2.5', '1:3', '1:4', '1:5'].map(x =>
+            `<option ${rules.rr === x ? 'selected' : ''}>${x}</option>`
+          ).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Preferred Sessions</label>
+            <input id="rule_sessions" value="${esc(rules.sessions || 'London,Asian')}">
+          </div>
+          <div class="field full">
+            <label>Favorite Pairs (up to 5)</label>
+            <input id="rule_pairs" value="${esc(rules.pairs || 'XAUUSD,EURUSD,GBPUSD')}">
+          </div>
+        </div>
+        <button class="primary" style="margin-top:16px" onclick="saveRules()">Save Trading Rules</button>
+      </div>`;
+      }
+
+      else if (settingsTab === 'appearance') {
+        content = `
+      <div class="section">
+        <h2>Appearance</h2>
+        <p class="muted">Choose your dashboard display preference.</p>
+        <div class="field">
+          <label>Theme</label>
+          <select id="dashboard_theme">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+        <button class="primary" style="margin-top:16px" onclick="saveDashboardTheme()">Save Appearance</button>
+      </div>`;
+      }
+
+      else if (settingsTab === 'security') {
+        content = `
+      <div class="section">
+        <h2>Security & Session</h2>
+        <div class="notice">Keep your account credentials private. Password changes are not configured in this dashboard yet.</div>
+        <h3 style="margin-top:20px">Current Session</h3>
+        <p class="muted">You are signed in to your dashboard.</p>
+        <button class="secondary" onclick="logout()">Log Out</button>
+      </div>`;
+      }
+
+      return `
+    <div class="card">
+      <div class="sectionhead">
+        <div>
+          <h2>Profile & Settings</h2>
+          <p class="muted">Manage your workspace and preferences.</p>
+        </div>
+      </div>
+      <div class="tabs">
+        ${tabs.map(([id, label]) => `
+          <button class="${settingsTab === id ? 'active' : ''}"
+            onclick="setSettingsTab('${id}')">${label}</button>
+        `).join('')}
+      </div>
+      ${content}
+      <div class="section">
+        <h2>Data & Privacy</h2>
+        <button class="secondary" onclick="exportJSON()">Export all my data (JSON)</button>
+      </div>
+    </div>`;
+    }
+
+    function saveWorkspaceProfile() {
+      const value = document.getElementById('workspace_name').value.trim();
+      if (!value) return alert('Please enter a workspace name.');
+      localStorage.setItem('workspace_name', value);
+      alert('Workspace profile saved!');
+    }
+
+    function savePlatformPreference() {
+      const value = document.getElementById('preferred_platform').value;
+      localStorage.setItem('preferred_platform', value);
+      alert('Platform preference saved!');
+    }
+
+    function saveDashboardTheme() {
+      const value = document.getElementById('dashboard_theme').value;
+
+      document.body.classList.toggle('light-theme', value === 'light');
+      localStorage.setItem('dashboard_theme', value);
+
+      alert('Appearance preference saved!');
+    }
+    function drawChart() {
+      let c = $('#equity');
+      if (!c) return;
+
+      let dpr = window.devicePixelRatio || 1;
+      let w = c.clientWidth;
+      let h = c.clientHeight;
+
+      if (!w || !h) return;
+
+      c.width = w * dpr;
+      c.height = h * dpr;
+
+      let x = c.getContext('2d');
+      x.scale(dpr, dpr);
+
+      x.clearRect(0, 0, w, h);
+
+      const pad = 25;
+
+      // Background grid
+      x.strokeStyle = 'rgba(130,150,170,0.13)';
+      x.lineWidth = 1;
+
+      for (let i = 1; i < 5; i++) {
+        x.beginPath();
+        x.moveTo(pad, h * i / 5);
+        x.lineTo(w - pad, h * i / 5);
+        x.stroke();
+      }
+
+      // Cumulative equity values
+      let vals = [
+        0,
+        ...trades.slice().reverse().map((t, i, a) =>
+          a.slice(0, i + 1).reduce((s, z) => s + (Number(z.pnl) || 0), 0)
+        )
+      ];
+
+      if (vals.length < 2) vals = [0, 0];
+
+      const min = Math.min(...vals, 0);
+      const max = Math.max(...vals, 1);
+      const range = max - min || 1;
+
+      const points = vals.map((v, i) => ({
+        x: pad + i * (w - 2 * pad) / (vals.length - 1),
+        y: h - pad - (v - min) / range * (h - 2 * pad)
+      }));
+
+      // Smooth Bezier curve
+      function drawSmoothPath() {
+        x.beginPath();
+        x.moveTo(points[0].x, points[0].y);
+
+        for (let i = 0; i < points.length - 1; i++) {
+          const current = points[i];
+          const next = points[i + 1];
+
+          const midX = (current.x + next.x) / 2;
+          const midY = (current.y + next.y) / 2;
+
+          if (i === 0) {
+            x.lineTo(midX, midY);
+          } else {
+            x.quadraticCurveTo(
+              current.x, current.y,
+              midX, midY
+            );
+          }
+        }
+
+        const last = points[points.length - 1];
+
+        x.quadraticCurveTo(
+          points[points.length - 2].x,
+          points[points.length - 2].y,
+          last.x,
+          last.y
+        );
+      }
+
+      // Gradient area
+      drawSmoothPath();
+      x.lineTo(points[points.length - 1].x, h - pad);
+      x.lineTo(points[0].x, h - pad);
+      x.closePath();
+
+      const gradient = x.createLinearGradient(0, 0, 0, h);
+      gradient.addColorStop(0, 'rgba(8,124,255,0.30)');
+      gradient.addColorStop(1, 'rgba(8,124,255,0.00)');
+
+      x.fillStyle = gradient;
+      x.fill();
+
+      // Glowing smooth line
+      drawSmoothPath();
+
+      x.strokeStyle = '#087cff';
+      x.lineWidth = 3;
+      x.lineJoin = 'round';
+      x.lineCap = 'round';
+
+      x.shadowColor = 'rgba(8,124,255,0.45)';
+      x.shadowBlur = 12;
+
+      x.stroke();
+
+      x.shadowBlur = 0;
+
+      // Last point
+      const last = points[points.length - 1];
+
+      x.beginPath();
+      x.arc(last.x, last.y, 4, 0, Math.PI * 2);
+      x.fillStyle = '#087cff';
+      x.fill();
+    }
+
+    function contractSize(symbol) {
+      const s = (symbol || '').toUpperCase().replace('/', '');
+
+      if (s.startsWith('XAU')) return 100;
+      if (s.startsWith('BTC')) return 1;
+      if (/^(US30|NAS100|US100|SPX500|US500|USTEC|DJ30)/.test(s)) return 1;
+
+      return 100000;
+    }
+
+    function calculateTradePnl() {
+      const symbol = $('#tf_symbol')?.value || 'XAUUSD';
+      const side = $('#tf_side')?.value || 'Long';
+      const quantity = Number($('#tf_quantity')?.value) || 0;
+      const entry = Number($('#tf_entry')?.value) || 0;
+      const exit = Number($('#tf_exit')?.value) || 0;
+      const multiplier = contractSize(symbol);
+
+      const difference = side === 'Long'
+        ? exit - entry
+        : entry - exit;
+
+      const pnl = difference * quantity * multiplier;
+
+      const output = $('#tf_pnl_preview');
+      const hiddenPnl = $('#tf_pnl');
+
+      if (output) {
+        output.textContent = `Estimated P&L: $${pnl.toFixed(2)}`;
+        output.style.color = pnl >= 0 ? '#16a34a' : '#dc2626';
+      }
+
+      if (hiddenPnl) hiddenPnl.value = pnl.toFixed(2);
+    }
+
+    function openTrade(id) {
+      let t = id ? trades.find(x => x.id === id) : {};
+      let shots = [];
+
+      try {
+        shots = JSON.parse(t.screenshots || '[]');
+      } catch { }
+
+      let checklist = [];
+      try {
+        checklist = JSON.parse(t.checklist || '[]');
+      } catch { }
+
+      $('#modal').innerHTML = `
+    <button class="close" onclick="closeModal()">×</button>
+    <h2>${id ? 'Edit Trade' : '＋ Add Trade'}</h2>
+
+    <form id="tradeform" onsubmit="saveTrade(event,${id || 'null'})">
+
+      <div class="tabs">
+        <button type="button" id="sideLong"
+          class="${(t.side || 'Long') === 'Long' ? 'active' : ''}"
+          onclick="setSide('Long')">↗ Buy / Long</button>
+
+        <button type="button" id="sideShort"
+          class="${t.side === 'Short' ? 'active' : ''}"
+          onclick="setSide('Short')">↘ Sell / Short</button>
+
+        <input type="hidden" id="tf_side" value="${t.side || 'Long'}">
+      </div>
+
+      <div class="formgrid section">
+
+        <div class="field">
+          <label>Asset / Symbol</label>
+          <input id="tf_symbol" value="${esc(t.symbol || 'XAUUSD')}" required>
+        </div>
+
+        <div class="field">
+          <label>Lot Size</label>
+          <input id="tf_quantity" type="number" min="0" step="any"
+            value="${esc(t.quantity ?? '')}">
+        </div>
+
+        <div class="field">
+          <label>Entry Price</label>
+          <input id="tf_entry" type="number" min="0" step="any"
+            value="${esc(t.entry ?? '')}">
+        </div>
+
+        <div class="field">
+          <label>Exit Price</label>
+          <input id="tf_exit" type="number" min="0" step="any"
+            value="${esc(t.exit ?? '')}">
+        </div>
+
+        <div class="field full">
+          <label>Automatic P&L Preview</label>
+          <div class="card section" id="tf_pnl_preview">
+            Estimated P&L: $0.00
+          </div>
+          <input type="hidden" id="tf_pnl" value="${esc(t.pnl ?? 0)}">
+          <small class="muted">
+            Estimated journal calculation. Contract multipliers are default assumptions.
+          </small>
+        </div>
+
+        ${[
+          ['Entry Date', 'opened', t.opened || '', 'datetime-local'],
+          ['Exit Date', 'closed', t.closed || '', 'datetime-local'],
+          ['Session', 'session', t.session || 'London', 'text'],
+          ['Setup', 'setup', t.setup || '', 'text']
+        ].map(([l, k, v, type]) => `
+          <div class="field">
+            <label>${l}</label>
+            <input id="tf_${k}" type="${type}" value="${esc(v)}">
+          </div>
+        `).join('')}
+
+        <div class="field full">
+          <label>Pre-trade analysis</label>
+          <textarea id="tf_pre_analysis">${esc(t.pre_analysis || '')}</textarea>
+        </div>
+
+        <div class="field full">
+          <label>Post-trade review</label>
+          <textarea id="tf_post_review">${esc(t.post_review || '')}</textarea>
+        </div>
+
+        <div class="field">
+          <label>Emotions</label>
+          <input id="tf_emotions" value="${esc(t.emotions || '')}">
+        </div>
+
+        <div class="field">
+          <label>Lessons learned</label>
+          <input id="tf_lessons" value="${esc(t.lessons || '')}">
+        </div>
+
+        <div class="field full">
+          <label>Tags</label>
+          <input id="tf_tags" value="${esc(t.tags || '')}">
+        </div>
+
+        <div class="field full">
+          <label>Execution Checklist</label>
+          ${[
+          'Checked higher timeframe',
+          'Risk within limits',
+          'Fits my trading plan',
+          'Key levels identified',
+          'Economic calendar checked'
+        ].map(x => `
+            <label class="check">
+              <input type="checkbox" class="tf_check"
+                value="${x}" ${checklist.includes(x) ? 'checked' : ''}>
+              ${x}
+            </label>
+          `).join('')}
+        </div>
+
+        <div class="field full">
+          <label>Trade screenshots</label>
+          <input id="tf_images" type="file" accept="image/*" multiple>
+          <div class="row" id="shotpreview">
+            ${shots.map(s => `<img class="screenshot" src="${s}">`).join('')}
+          </div>
+          <small class="muted">
+            Each screenshot must be 2 MB or smaller.
+          </small>
+        </div>
+
+      </div>
+
+      <button class="primary" style="margin-top:18px">
+        Save Trade
+      </button>
+    </form>
+  `;
+
+      window.currentShots = shots;
+
+      $('#modalback').style.display = 'flex';
+
+      ['tf_symbol', 'tf_quantity', 'tf_entry', 'tf_exit'].forEach(id => {
+        $('#' + id).addEventListener('input', calculateTradePnl);
+      });
+
+      calculateTradePnl();
+
+      $('#tf_images').onchange = async e => {
+        for (const f of e.target.files) {
+          if (f.size > 2 * 1024 * 1024) {
+            alert('Each screenshot must be 2 MB or smaller.');
+            continue;
+          }
+
+          let data = await new Promise(ok => {
+            let r = new FileReader();
+            r.onload = () => ok(r.result);
+            r.readAsDataURL(f);
+          });
+
+          window.currentShots.push(data);
+        }
+
+        $('#shotpreview').innerHTML =
+          window.currentShots.map(s => `<img class="screenshot" src="${s}">`).join('');
+      };
+    }
+    function setSide(s) {
+      $('#tf_side').value = s;
+      $('#sideLong').classList.toggle('active', s === 'Long');
+      $('#sideShort').classList.toggle('active', s === 'Short');
+      calculateTradePnl();
+    }
+    function closeModal() { $('#modalback').style.display = 'none' } async function saveTrade(e, id) { e.preventDefault(); calculateTradePnl(); let obj = {};['symbol', 'quantity', 'entry', 'exit', 'opened', 'closed', 'pnl', 'session', 'setup', 'pre_analysis', 'post_review', 'emotions', 'lessons', 'tags'].forEach(k => obj[k] = $('#tf_' + k).value); obj.side = $('#tf_side').value; obj.screenshots = window.currentShots || []; obj.checklist = [...document.querySelectorAll('.tf_check:checked')].map(x => x.value); try { await api('/trades' + (id ? '/' + id : ''), { method: id ? 'PUT' : 'POST', body: JSON.stringify(obj) }); closeModal(); await load(); render() } catch (e) { showError(e) } } async function deleteTrade(id) { if (!confirm('Delete this trade?')) return; await api('/trades/' + id, { method: 'DELETE' }); await load(); render() } async function clearTrades() { if (confirm('Delete every trade in your account? This cannot be undone.')) { await api('/trades', { method: 'DELETE' }); await load(); render() } } async function saveRules() { let obj = {};['risk', 'max_trades', 'daily_loss', 'losing_streak'].forEach(k => obj[k] = $('#rule_' + k).value); obj.rr = $('#rule_rr').value; obj.sessions = $('#rule_sessions').value; obj.pairs = $('#rule_pairs').value; if (obj.pairs.split(',').filter(x => x.trim()).length > 5) return alert('You can select up to 5 favorite pairs.'); await api('/rules', { method: 'PUT', body: JSON.stringify(obj) }); await load(); alert('Trading rules saved.'); render() }
+    function exportCSV() { let cols = ['symbol', 'side', 'quantity', 'entry', 'exit', 'pnl', 'opened', 'closed', 'session', 'setup', 'pre_analysis', 'post_review', 'emotions', 'lessons', 'tags']; let csv = [cols.join(','), ...trades.map(t => cols.map(k => '"' + String(t[k] ?? '').replaceAll('"', '""') + '"').join(','))].join('\n'); download(csv, 'trades.csv', 'text/csv') } function importCSV(inp) { let f = inp.files[0]; if (!f) return; let r = new FileReader(); r.onload = async () => { let rows = r.result.trim().split(/\r?\n/), head = rows.shift().split(',').map(x => x.trim()); for (let line of rows) { let vals = line.match(/("(?:[^"]|"")*"|[^,]*)(,|$)/g).filter(Boolean).map(x => x.replace(/,$/, '').replace(/^"|"$/g, '').replaceAll('""', '"')); let o = {}; head.forEach((h, i) => o[h] = vals[i]); try { await api('/trades', { method: 'POST', body: JSON.stringify(o) }) } catch { } } await load(); render() }; r.readAsText(f) } function exportJSON() { download(JSON.stringify({ trades, rules }, null, 2), 'tradefxbook-backup.json', 'application/json') } function download(data, name, type) { let a = document.createElement('a'), u = URL.createObjectURL(new Blob([data], { type })); a.href = u; a.download = name; a.click(); URL.revokeObjectURL(u) } function searchAll(q) { if (!q) return; let found = trades.find(t => t.symbol.toLowerCase().includes(q.toLowerCase())); if (found) { selected = found.id; go('Trades') } }
+    boot(); setInterval(() => { let el = $('#clock'); if (el) el.textContent = '◷ ' + new Date().toLocaleTimeString() }, 1000);
+  </script>
+</body>
+
+</html>
+
+<script>
+  function openScreenshot(src) {
+    const old = document.getElementById('screenshotLightbox');
+    if (old) old.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'screenshotLightbox';
+
+    overlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    z-index:999999;
+    background:rgba(0,0,0,0.94);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:50px 20px;
+    overflow:auto;
+  `;
+
+    overlay.innerHTML = `
+    <button id="closeScreenshot"
+      style="position:fixed;top:18px;right:25px;font-size:34px;
+      color:white;background:none;border:none;cursor:pointer;z-index:2">
+      &times;
+    </button>
+    <img id="largeScreenshot" src="${src}"
+      style="max-width:90vw;max-height:85vh;object-fit:contain;
+      cursor:zoom-in;transition:transform .25s ease;transform:scale(1)">
+  `;
+
+    document.body.appendChild(overlay);
+
+    const image = document.getElementById('largeScreenshot');
+
+    image.onclick = () => {
+      const zoomed = image.dataset.zoomed === 'true';
+      image.style.transform = zoomed ? 'scale(1)' : 'scale(1.8)';
+      image.style.cursor = zoomed ? 'zoom-in' : 'zoom-out';
+      image.dataset.zoomed = zoomed ? 'false' : 'true';
+    };
+
+    document.getElementById('closeScreenshot').onclick = () => overlay.remove();
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) overlay.remove();
+    });
+
+    document.addEventListener('keydown', function closeOnEscape(event) {
+      if (event.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', closeOnEscape);
+      }
+    });
+  }
+</script>
