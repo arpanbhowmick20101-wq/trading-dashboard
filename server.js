@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 const express = require('express');
@@ -12,8 +11,13 @@ const app = express();
 
 app.set('trust proxy', 1);
 
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is missing.');
-if (!process.env.SESSION_SECRET) throw new Error('SESSION_SECRET is missing.');
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is missing.');
+}
+
+if (!process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET is missing.');
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -23,7 +27,9 @@ const pool = new Pool({
   connectionTimeoutMillis: 10000
 });
 
-pool.on('error', err => console.error('PostgreSQL pool error:', err.message));
+pool.on('error', err => {
+  console.error('PostgreSQL pool error:', err.message);
+});
 
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -47,38 +53,108 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const auth = (req, res, next) =>
-  req.session && req.session.uid
-    ? next()
-    : res.status(401).json({ error: 'Please sign in first' });
+const auth = (req, res, next) => {
+  if (req.session && req.session.uid) {
+    return next();
+  }
 
-const num = value =>
-  Number.isFinite(Number(value)) ? Number(value) : 0;
+  return res.status(401).json({
+    error: 'Please sign in first'
+  });
+};
 
-// Register
+const num = value => {
+  const result = Number(value);
+  return Number.isFinite(result) ? result : 0;
+};
+
+const text = value => {
+  return value === undefined || value === null
+    ? ''
+    : String(value);
+};
+
+const jsonArray = value => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+};
+
+const tradeValues = t => [
+  t.symbol || 'XAUUSD',
+  t.side || 'Long',
+  num(t.quantity),
+  num(t.entry),
+  num(t.exit),
+  num(t.pnl),
+  text(t.opened),
+  text(t.closed),
+  text(t.session),
+  text(t.setup),
+  text(t.pre_analysis),
+  text(t.post_review),
+  text(t.emotions),
+  text(t.lessons),
+  text(t.tags),
+  JSON.stringify(jsonArray(t.screenshots)),
+  JSON.stringify(jsonArray(t.checklist))
+];
+
+// REGISTER
 app.post('/api/register', async (req, res) => {
   try {
     const { name, email, password } = req.body || {};
 
-    if (!name || !email || !password || password.length < 8) {
+    if (!name || !email || !password || String(password).length < 8) {
       return res.status(400).json({
         error: 'Enter name, email and a password with at least 8 characters'
       });
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(String(password), 10);
 
     const result = await pool.query(
-      'INSERT INTO users(name,email,password) VALUES($1,$2,$3) RETURNING id,name',
-      [String(name).trim(), String(email).trim().toLowerCase(), hash]
+      `INSERT INTO users(name, email, password)
+       VALUES($1, $2, $3)
+       RETURNING id, name`,
+      [
+        String(name).trim(),
+        String(email).trim().toLowerCase(),
+        hash
+      ]
     );
 
     req.session.uid = result.rows[0].id;
     req.session.name = result.rows[0].name;
 
-    return res.json({ ok: true, name: result.rows[0].name });
+    return req.session.save(error => {
+      if (error) {
+        console.error('Session save error:', error.message);
+        return res.status(500).json({
+          error: 'Could not create session'
+        });
+      }
+
+      return res.json({
+        ok: true,
+        name: result.rows[0].name
+      });
+    });
+
   } catch (error) {
     console.error('Register error:', error.message);
+
     return res.status(error.code === '23505' ? 400 : 500).json({
       error: error.code === '23505'
         ? 'Email may already be registered'
@@ -87,214 +163,319 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Login
+// LOGIN
 app.post('/api/login', async (req, res) => {
   try {
-    const email = String(req.body?.email || '').trim().toLowerCase();
+    const email = String(req.body?.email || '')
+      .trim()
+      .toLowerCase();
+
     const password = String(req.body?.password || '');
 
     const result = await pool.query(
-      'SELECT id,name,password FROM users WHERE email=$1 LIMIT 1',
+      `SELECT id, name, password
+       FROM users
+       WHERE email = $1
+       LIMIT 1`,
       [email]
     );
 
     const user = result.rows[0];
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: 'Incorrect email or password' });
+      return res.status(401).json({
+        error: 'Incorrect email or password'
+      });
     }
 
     req.session.uid = user.id;
     req.session.name = user.name;
 
-    return res.json({ ok: true, name: user.name });
+    return req.session.save(error => {
+      if (error) {
+        console.error('Session save error:', error.message);
+        return res.status(500).json({
+          error: 'Could not create session'
+        });
+      }
+
+      return res.json({
+        ok: true,
+        name: user.name
+      });
+    });
+
   } catch (error) {
     console.error('Login error:', error.message);
-    return res.status(500).json({ error: 'Could not sign in' });
+
+    return res.status(500).json({
+      error: 'Could not sign in'
+    });
   }
 });
 
-// Logout
+// LOGOUT
 app.post('/api/logout', (req, res) => {
   req.session.destroy(error => {
-    if (error) return res.status(500).json({ error: 'Could not sign out' });
+    if (error) {
+      return res.status(500).json({
+        error: 'Could not sign out'
+      });
+    }
+
     res.clearCookie('connect.sid');
+
     return res.json({ ok: true });
   });
 });
 
-// Current user
+// CURRENT USER
 app.get('/api/me', (req, res) => {
-  res.json({
+  return res.json({
     signedIn: !!(req.session && req.session.uid),
     name: (req.session && req.session.name) || ''
   });
 });
 
-// Get trades
+// GET TRADES
 app.get('/api/trades', auth, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM trades WHERE user_id=$1
+      `SELECT
+         id,
+         user_id,
+         symbol,
+         side,
+         quantity,
+         entry,
+         exit,
+         pnl,
+         opened,
+         closed,
+         session,
+         setup,
+         pre_analysis,
+         post_review,
+         emotions,
+         lessons,
+         tags,
+         screenshots::text AS screenshots,
+         checklist::text AS checklist,
+         created_at
+       FROM trades
+       WHERE user_id = $1
        ORDER BY COALESCE(opened, created_at::text) DESC`,
       [req.session.uid]
     );
 
     return res.json(result.rows);
+
   } catch (error) {
     console.error('Get trades error:', error.message);
-    return res.status(500).json({ error: 'Could not load trades' });
+
+    return res.status(500).json({
+      error: 'Could not load trades'
+    });
   }
 });
 
-// Add trade
+// ADD TRADE
 app.post('/api/trades', auth, async (req, res) => {
   try {
     const t = req.body || {};
 
     const result = await pool.query(
       `INSERT INTO trades(
-        user_id,symbol,side,quantity,entry,exit,pnl,opened,closed,
-        session,setup,pre_analysis,post_review,emotions,lessons,tags,
-        screenshots,checklist
-      )
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
-      RETURNING id`,
+         user_id,
+         symbol,
+         side,
+         quantity,
+         entry,
+         exit,
+         pnl,
+         opened,
+         closed,
+         session,
+         setup,
+         pre_analysis,
+         post_review,
+         emotions,
+         lessons,
+         tags,
+         screenshots,
+         checklist
+       )
+       VALUES(
+         $1,$2,$3,$4,$5,$6,$7,$8,$9,
+         $10,$11,$12,$13,$14,$15,$16,$17,$18
+       )
+       RETURNING id`,
       [
         req.session.uid,
-        t.symbol || 'XAUUSD',
-        t.side || 'Long',
-        num(t.quantity),
-        num(t.entry),
-        num(t.exit),
-        num(t.pnl),
-        t.opened || '',
-        t.closed || '',
-        t.session || '',
-        t.setup || '',
-        t.pre_analysis || '',
-        t.post_review || '',
-        t.emotions || '',
-        t.lessons || '',
-        t.tags || '',
-        JSON.stringify(t.screenshots || []),
-        JSON.stringify(t.checklist || [])
+        ...tradeValues(t)
       ]
     );
 
-    return res.json({ ok: true, id: result.rows[0].id });
+    return res.json({
+      ok: true,
+      id: result.rows[0].id
+    });
+
   } catch (error) {
     console.error('Create trade error:', error.message);
-    return res.status(500).json({ error: 'Could not save trade' });
+
+    return res.status(500).json({
+      error: 'Could not save trade'
+    });
   }
 });
 
-// Update trade
+// UPDATE TRADE
 app.put('/api/trades/:id', auth, async (req, res) => {
   try {
     const t = req.body || {};
 
     const result = await pool.query(
       `UPDATE trades SET
-        symbol=$1,side=$2,quantity=$3,entry=$4,exit=$5,pnl=$6,
-        opened=$7,closed=$8,session=$9,setup=$10,pre_analysis=$11,
-        post_review=$12,emotions=$13,lessons=$14,tags=$15,
-        screenshots=$16,checklist=$17
-       WHERE id=$18 AND user_id=$19`,
+         symbol = $1,
+         side = $2,
+         quantity = $3,
+         entry = $4,
+         exit = $5,
+         pnl = $6,
+         opened = $7,
+         closed = $8,
+         session = $9,
+         setup = $10,
+         pre_analysis = $11,
+         post_review = $12,
+         emotions = $13,
+         lessons = $14,
+         tags = $15,
+         screenshots = $16,
+         checklist = $17
+       WHERE id = $18 AND user_id = $19
+       RETURNING id`,
       [
-        t.symbol || 'XAUUSD',
-        t.side || 'Long',
-        num(t.quantity),
-        num(t.entry),
-        num(t.exit),
-        num(t.pnl),
-        t.opened || '',
-        t.closed || '',
-        t.session || '',
-        t.setup || '',
-        t.pre_analysis || '',
-        t.post_review || '',
-        t.emotions || '',
-        t.lessons || '',
-        t.tags || '',
-        JSON.stringify(t.screenshots || []),
-        JSON.stringify(t.checklist || []),
+        ...tradeValues(t),
         req.params.id,
         req.session.uid
       ]
     );
 
-    return res.json({ ok: result.rowCount > 0 });
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Trade not found'
+      });
+    }
+
+    return res.json({
+      ok: true,
+      id: result.rows[0].id
+    });
+
   } catch (error) {
     console.error('Update trade error:', error.message);
-    return res.status(500).json({ error: 'Could not update trade' });
+
+    return res.status(500).json({
+      error: 'Could not update trade'
+    });
   }
 });
 
-// Delete one trade
+// DELETE ONE TRADE
 app.delete('/api/trades/:id', auth, async (req, res) => {
   try {
     const result = await pool.query(
-      'DELETE FROM trades WHERE id=$1 AND user_id=$2',
+      `DELETE FROM trades
+       WHERE id = $1 AND user_id = $2`,
       [req.params.id, req.session.uid]
     );
 
-    return res.json({ ok: result.rowCount > 0 });
+    return res.json({
+      ok: result.rowCount > 0
+    });
+
   } catch (error) {
     console.error('Delete trade error:', error.message);
-    return res.status(500).json({ error: 'Could not delete trade' });
+
+    return res.status(500).json({
+      error: 'Could not delete trade'
+    });
   }
 });
 
-// Delete all trades
+// DELETE ALL TRADES
 app.delete('/api/trades', auth, async (req, res) => {
   try {
-    await pool.query('DELETE FROM trades WHERE user_id=$1', [req.session.uid]);
+    await pool.query(
+      'DELETE FROM trades WHERE user_id = $1',
+      [req.session.uid]
+    );
+
     return res.json({ ok: true });
+
   } catch (error) {
     console.error('Delete all trades error:', error.message);
-    return res.status(500).json({ error: 'Could not delete trades' });
+
+    return res.status(500).json({
+      error: 'Could not delete trades'
+    });
   }
 });
 
-// Get rules
+// GET RULES
 app.get('/api/rules', auth, async (req, res) => {
   try {
     await pool.query(
-      'INSERT INTO rules(user_id) VALUES($1) ON CONFLICT(user_id) DO NOTHING',
+      `INSERT INTO rules(user_id)
+       VALUES($1)
+       ON CONFLICT(user_id) DO NOTHING`,
       [req.session.uid]
     );
 
     const result = await pool.query(
-      'SELECT * FROM rules WHERE user_id=$1',
+      'SELECT * FROM rules WHERE user_id = $1',
       [req.session.uid]
     );
 
     return res.json(result.rows[0]);
+
   } catch (error) {
     console.error('Get rules error:', error.message);
-    return res.status(500).json({ error: 'Could not load rules' });
+
+    return res.status(500).json({
+      error: 'Could not load rules'
+    });
   }
 });
 
-// Save rules
+// SAVE RULES
 app.put('/api/rules', auth, async (req, res) => {
   try {
     const r = req.body || {};
 
     await pool.query(
       `INSERT INTO rules(
-        user_id,risk,max_trades,daily_loss,losing_streak,rr,sessions,pairs
-      )
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8)
-      ON CONFLICT(user_id) DO UPDATE SET
-        risk=EXCLUDED.risk,
-        max_trades=EXCLUDED.max_trades,
-        daily_loss=EXCLUDED.daily_loss,
-        losing_streak=EXCLUDED.losing_streak,
-        rr=EXCLUDED.rr,
-        sessions=EXCLUDED.sessions,
-        pairs=EXCLUDED.pairs`,
+         user_id,
+         risk,
+         max_trades,
+         daily_loss,
+         losing_streak,
+         rr,
+         sessions,
+         pairs
+       )
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8)
+       ON CONFLICT(user_id) DO UPDATE SET
+         risk = EXCLUDED.risk,
+         max_trades = EXCLUDED.max_trades,
+         daily_loss = EXCLUDED.daily_loss,
+         losing_streak = EXCLUDED.losing_streak,
+         rr = EXCLUDED.rr,
+         sessions = EXCLUDED.sessions,
+         pairs = EXCLUDED.pairs`,
       [
         req.session.uid,
         num(r.risk) || 2,
@@ -308,67 +489,97 @@ app.put('/api/rules', auth, async (req, res) => {
     );
 
     return res.json({ ok: true });
+
   } catch (error) {
     console.error('Update rules error:', error.message);
-    return res.status(500).json({ error: 'Could not save rules' });
+
+    return res.status(500).json({
+      error: 'Could not save rules'
+    });
   }
 });
 
-// Educational AI journal report (local Ollama only)
+// EDUCATIONAL AI JOURNAL REPORT
 app.post('/api/ai/report', auth, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT symbol,side,pnl,session,setup,pre_analysis,post_review,
-              emotions,lessons,tags
-       FROM trades WHERE user_id=$1
+      `SELECT
+         symbol,
+         side,
+         pnl,
+         session,
+         setup,
+         pre_analysis,
+         post_review,
+         emotions,
+         lessons,
+         tags
+       FROM trades
+       WHERE user_id = $1
        ORDER BY COALESCE(closed, opened, created_at::text) DESC
        LIMIT 100`,
       [req.session.uid]
     );
 
     if (!result.rows.length) {
-      return res.status(400).json({ error: 'Please add journal entries first.' });
+      return res.status(400).json({
+        error: 'Please add journal entries first.'
+      });
     }
 
     const safeTrades = result.rows.map(t => ({
-      symbol: String(t.symbol || '').slice(0, 20),
-      side: String(t.side || '').slice(0, 12),
+      symbol: text(t.symbol).slice(0, 20),
+      side: text(t.side).slice(0, 12),
       pnl: num(t.pnl),
-      session: String(t.session || '').slice(0, 40),
-      setup: String(t.setup || '').slice(0, 100),
-      pre_analysis: String(t.pre_analysis || '').slice(0, 300),
-      post_review: String(t.post_review || '').slice(0, 300),
-      emotions: String(t.emotions || '').slice(0, 100),
-      lessons: String(t.lessons || '').slice(0, 200),
-      tags: String(t.tags || '').slice(0, 100)
+      session: text(t.session).slice(0, 40),
+      setup: text(t.setup).slice(0, 100),
+      pre_analysis: text(t.pre_analysis).slice(0, 300),
+      post_review: text(t.post_review).slice(0, 300),
+      emotions: text(t.emotions).slice(0, 100),
+      lessons: text(t.lessons).slice(0, 200),
+      tags: text(t.tags).slice(0, 100)
     }));
 
-    const ai = await fetch('http://127.0.0.1:11434/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'qwen2.5:3b',
-        stream: false,
-        prompt: `Analyze these historical journal entries for educational reflection. Summarize recorded patterns, emotions, repeated mistakes and reflection questions. Do not invent missing data or provide trade signals or execution instructions. Journal data: ${JSON.stringify(safeTrades)}`
-      })
-    });
+    const ai = await fetch(
+      'http://127.0.0.1:11434/api/generate',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'qwen2.5:3b',
+          stream: false,
+          prompt: `Analyze these historical journal entries for educational reflection. Summarize recorded patterns, emotions, repeated mistakes and reflection questions. Do not invent missing data or provide trade signals or execution instructions. Journal data: ${JSON.stringify(safeTrades)}`
+        })
+      }
+    );
 
-    if (!ai.ok) throw new Error('Ollama request failed');
+    if (!ai.ok) {
+      throw new Error('Ollama request failed');
+    }
 
     const data = await ai.json();
 
-    if (!data.response) throw new Error('AI returned an empty report');
+    if (!data.response) {
+      throw new Error('AI returned an empty report');
+    }
 
-    return res.json({ ok: true, report: data.response });
+    return res.json({
+      ok: true,
+      report: data.response
+    });
+
   } catch (error) {
     console.error('Local AI Error:', error.message);
+
     return res.status(502).json({
       error: 'Local AI is unavailable. Check that Ollama is running on the server machine.'
     });
   }
 });
 
-// Start server
+// START SERVER
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
@@ -380,8 +591,13 @@ async function startServer() {
         `TradeFXBook running on port ${PORT}; PostgreSQL connected.`
       );
     });
+
   } catch (error) {
-    console.error('PostgreSQL connection failed:', error.message);
+    console.error(
+      'PostgreSQL connection failed:',
+      error.message
+    );
+
     process.exit(1);
   }
 }
